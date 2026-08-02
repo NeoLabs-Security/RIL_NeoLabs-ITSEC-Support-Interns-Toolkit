@@ -1,0 +1,51 @@
+name: Validate IT Security Support Toolkit
+
+on:
+  pull_request:
+  push:
+    branches: [main, codex/foundation-toolkit]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Bash syntax
+        run: bash -n scripts/collect-system-baseline.sh
+
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'scripts/Collect-SystemBaseline.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+
+      - name: Check scripts for prohibited destructive shortcuts
+        run: |
+          if grep -RInE 'rm[[:space:]]+-rf|Clear-EventLog|wevtutil[[:space:]]+cl|DisableRealtimeMonitoring|Set-MpPreference.*Disable|ufw[[:space:]]+disable|Set-NetFirewallProfile.*Enabled[[:space:]]+False' scripts; then
+            echo 'A prohibited destructive or security-disabling command was found.' >&2
+            exit 1
+          fi
+
+      - name: Check repository safety boundary
+        run: |
+          if grep -RInE --exclude-dir=.git 'BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' .; then
+            echo 'Private key material must not be committed.' >&2
+            exit 1
+          fi
+          if find . -type f \( -name '*.pem' -o -name '*.key' -o -name '*.pfx' -o -name '*.p12' \) -print | grep -q .; then
+            echo 'Credential material is not allowed.' >&2
+            exit 1
+          fi
