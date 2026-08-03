@@ -15,7 +15,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate Bash syntax
-        run: bash -n scripts/collect-system-baseline.sh
+        run: |
+          bash -n scripts/collect-system-baseline.sh
+          bash -n scripts/backup-restore-rehearsal.sh
 
       - name: Validate PowerShell syntax
         shell: pwsh
@@ -31,6 +33,14 @@ jobs:
             $errors | Format-List | Out-String | Write-Error
             exit 1
           }
+
+      - name: Rehearse synthetic backup and restore
+        run: |
+          workspace=/tmp/neolabs-recovery-lab
+          mkdir -p "$workspace"
+          bash scripts/backup-restore-rehearsal.sh "$workspace"
+          grep -F 'status=success' "$workspace/evidence/rehearsal-result.txt"
+          test "$(find "$workspace/source" -type f | wc -l)" -eq "$(find "$workspace/restored" -type f | wc -l)"
 
       - name: Check scripts for prohibited destructive shortcuts
         run: |
