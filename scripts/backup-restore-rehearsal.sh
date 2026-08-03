@@ -45,7 +45,7 @@ tar -C "$source_dir" -czf "$archive" .
 sha256sum "$archive" > "$archive.sha256"
 sha256sum -c "$archive.sha256"
 
-rm -rf "$restore_dir"
+find "$restore_dir" -mindepth 1 -depth -delete
 mkdir -p "$restore_dir"
 tar -C "$restore_dir" -xzf "$archive"
 
