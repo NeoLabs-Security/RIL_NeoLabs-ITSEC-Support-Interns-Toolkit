@@ -1,0 +1,2 @@
+asset_id,asset_type,owner_role,hostname_or_label,operating_system,version,environment,criticality,data_classification,security_tools,patch_method,backup_status,lifecycle_state,last_verified,notes
+SYN-001,workstation,synthetic-developer,DEV-LAB-01,Windows,11,training,medium,synthetic,Defender;Firewall,managed,protected,active,YYYY-MM-DD,
