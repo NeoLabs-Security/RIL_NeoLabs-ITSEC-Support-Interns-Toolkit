@@ -1,20 +1,20 @@
 # Content Manifest
 
-| Material | Planned contents | Status |
+| Material | Current release contents | Status |
 |---|---|---|
-| Secure Support Foundations | ticket intake, verification, privacy, evidence, diagnosis and escalation | Module 1 complete; editorial review pending |
-| Windows Support and Security | services, updates, Defender, Firewall, BitLocker, logs and baselines | Diagnostic handbook complete; practical QA pending |
-| Linux Support and Security | users, permissions, sudo, SSH, packages, services, firewall and logs | Diagnostic handbook complete; practical QA pending |
-| Networking and Connectivity | TCP/IP, DNS, DHCP, routing, ports, VPN and firewall diagnosis | Decision-tree handbook complete; platform labs pending |
-| Asset and Software Management | inventories, ownership, lifecycle, approved software and disposal | Planned |
-| Identity and Access Operations | onboarding, role changes, offboarding, MFA and privileged access | Account and access review template complete; module pending |
-| Patch and Vulnerability Management | advisories, exposure, testing, deployment, exceptions and rollback | Foundations referenced; dedicated module pending |
-| Backup and Recovery | backup design, integrity, restore testing and service continuity | Guarded synthetic backup/restore lab complete and CI-rehearsed |
-| Incident Intake and SOC Escalation | suspicious activity, evidence preservation and handoff | Foundations and ticket scenarios complete; dedicated module pending |
-| Change and Handover Management | approval, risk, implementation, validation, rollback and communication | Change request template complete; module pending |
-| Diagnostic Tooling | read-only Windows and Linux baseline collectors | Initial collectors complete and syntax-validated |
-| Synthetic Ticket Labs | endpoint, account, network, update, recovery and security scenarios | Six-ticket starter library complete |
-| Templates | ticket, asset, change, rollback, restore, escalation and handover records | Ticket, access review and change request complete; remaining templates pending |
+| Secure Support Foundations | intake, verification, privacy, evidence, diagnosis and escalation | Complete |
+| Windows Support and Security | services, events, Defender, Firewall, BitLocker, updates and networking | Complete |
+| Linux Support and Security | users, sudo, SSH, packages, services, firewall and journals | Complete |
+| Networking and Connectivity | link, addressing, routing, DNS, ports, firewall, TLS and application diagnosis | Complete |
+| Asset and Software Management | inventory, ownership, lifecycle, approval and unsupported software | Complete |
+| Identity and Access Operations | onboarding, role changes, offboarding, MFA and privileged access review | Complete |
+| Patch and Vulnerability Management | advisory review, exposure, prioritization, testing, rollback and validation | Complete |
+| Backup and Recovery | RPO/RTO, integrity and separate-location restore rehearsal | Complete with CI-rehearsed lab |
+| Incident Intake and SOC Escalation | indicators, evidence preservation, handoff and communication | Complete |
+| Change and Handover Management | approval, risk, implementation, validation, rollback and handover | Complete |
+| Diagnostic Tooling | read-only Windows and Linux baseline collectors | Complete and syntax-validated |
+| Synthetic Ticket Labs | network, MFA, service, privilege, recovery and least-privilege cases | Initial release complete |
+| Templates | support ticket, access review, change request, incident escalation and handover | Complete for internship launch |
 
 ## Current validation
 
@@ -23,6 +23,6 @@
 - File-count and manifest comparison after restoration.
 - CI rejection of destructive shortcuts, log-clearing commands, security-control disabling and credential material.
 
-## Publication rule
+## Release boundary
 
-A student-facing material is approved only after technical review, safety review, source verification, lab validation, NeoLabs branding and Markdown/PDF quality assurance.
+The toolkit supports learning and authorized synthetic practice. Live credentials, private infrastructure, official assignments, submissions and mentor ground truth remain outside this public repository.
