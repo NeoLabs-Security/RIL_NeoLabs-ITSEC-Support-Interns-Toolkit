@@ -14,6 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate NeoLabs Python client and installed command
+        run: |
+          python -m py_compile tools/neolabs.py
+          python -m pip install --disable-pip-version-check --no-deps -e .
+          neolabs --help >/dev/null
+          neolabs pod --help >/dev/null
+
       - name: Validate Bash syntax
         run: |
           bash -n scripts/collect-system-baseline.sh
