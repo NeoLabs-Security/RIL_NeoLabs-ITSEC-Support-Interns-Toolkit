@@ -4,6 +4,14 @@ The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn +
 
 It contains NeoLabs-branded learning material, read-only diagnostic helpers, synthetic tickets/recovery labs, change/rollback templates, SOC escalation resources and the NeoLabs pod-access client. Official weekly assignments and graded submissions belong in the separate central assignments repository.
 
+## Current week
+
+**Week 02 — The Ghost Login**
+
+- Learning source: `docs/week-02/ghost-login-learning-pack.md`
+- Branded PDF: `publications/NeoLabs_ITSEC_Support_Week_02_Ghost_Login.pdf`
+- Practical task: issued through `RIL_NeoLabs-Intern-Assignments`
+
 ## Student flow
 
 1. Read `START_HERE.md`, `SUPPORT_BOUNDARIES.md` and `LEARNING_PATH.md`.
@@ -61,4 +69,4 @@ That keeps this public toolkit reusable while still allowing authorised support 
 
 ## Release status
 
-The toolkit on `main` contains the broker client and existing support helpers. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
+The toolkit on `main` contains the broker client, existing support helpers and the current branded Week 2 learning pack. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
