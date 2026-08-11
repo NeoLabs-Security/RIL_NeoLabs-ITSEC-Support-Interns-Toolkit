@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """NeoLabs IT Security Support pod access client.
 
-The server controls the pod and support resources. This client refreshes only the
-endpoints/assets assigned to the authenticated intern and writes an ignored runtime manifest.
+The always-available NeoLabs gateway controls pod, scenario and support resources.
+Interactive endpoints are shown only while an approved live surface exists. During
+replay windows, Support can download only pod-scoped synthetic telemetry/evidence
+for ticket analysis, escalation and documentation.
 """
 from __future__ import annotations
 
 import argparse
 import getpass
+import hashlib
 import json
 import os
 import re
@@ -23,12 +26,16 @@ from typing import Any
 
 TRACK = "SUPPORT"
 POD_RE = re.compile(r"^pod-[0-9]{2}$")
+INTERACTIVE_STATES = {"LIVE", "CLOUD_LIVE", "ENDPOINT_LIVE"}
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_DIR = ROOT / "runtime"
 RUNTIME_MANIFEST = RUNTIME_DIR / "access-manifest.json"
+EVIDENCE_DIR = RUNTIME_DIR / "evidence"
+REPLAY_DIR = RUNTIME_DIR / "replay"
 HOME_STATE = Path.home() / ".neolabs" / "support"
 SESSION_FILE = HOME_STATE / "session.json"
 INSTALLATION_FILE = HOME_STATE / "installation-id"
+MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024
 
 
 def fail(message: str) -> "NoReturn":
@@ -72,19 +79,20 @@ def validate_base_url(value: str) -> str:
 
 
 def ssl_context() -> ssl.SSLContext:
+    context = ssl.create_default_context()
     ca_file = os.environ.get("NEOLABS_CA_FILE", "").strip()
     if ca_file:
         path = Path(ca_file).expanduser()
         if not path.is_file():
             fail(f"NEOLABS_CA_FILE does not exist: {path}")
-        return ssl.create_default_context(cafile=str(path))
-    return ssl.create_default_context()
+        context.load_verify_locations(cafile=str(path))
+    return context
 
 
 def request_json(base_url: str, path: str, *, method: str = "GET", payload: dict[str, Any] | None = None, token: str | None = None) -> dict[str, Any]:
     endpoint = urllib.parse.urljoin(base_url.rstrip("/") + "/", path.lstrip("/"))
     data = None if payload is None else json.dumps(payload).encode("utf-8")
-    headers = {"Accept": "application/json", "User-Agent": "NeoLabs-ITSEC-Support-Toolkit/1.0"}
+    headers = {"Accept": "application/json", "User-Agent": "NeoLabs-ITSEC-Support-Toolkit/1.1"}
     if data is not None:
         headers["Content-Type"] = "application/json"
     if token:
@@ -111,6 +119,20 @@ def request_json(base_url: str, path: str, *, method: str = "GET", payload: dict
     if not isinstance(result, dict):
         fail("lab access response must be a JSON object")
     return result
+
+
+def download_bytes(url: str) -> bytes:
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+        fail("replay gateway returned an invalid download URL")
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "NeoLabs-Support-Replay/1.1"}), context=ssl_context(), timeout=45) as response:
+            body = response.read(MAX_DOWNLOAD_BYTES + 1)
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ssl.SSLError):
+        fail("could not download an authorised replay object")
+    if len(body) > MAX_DOWNLOAD_BYTES:
+        fail("replay object exceeded the allowed download size")
+    return body
 
 
 def installation_id() -> str:
@@ -181,14 +203,20 @@ def login(args: argparse.Namespace) -> None:
     print("✓ Authentication successful")
     print(f"✓ Assigned pod: {manifest['pod_id']}")
     print("✓ Track: IT Security Support")
-    print("Next: run `neolabs connect` and `neolabs targets`.")
+    print(f"✓ Lab state: {manifest.get('lab_state', 'LIVE')}")
+    print("Next: run `neolabs connect`, `neolabs targets`, or `neolabs replay` as directed by the current task.")
 
 
 def connect(_: argparse.Namespace) -> None:
     manifest = refresh(read_session())
+    state = str(manifest.get("lab_state") or "LIVE")
+    if state not in INTERACTIVE_STATES:
+        print(f"NeoLabs state: {state}. No interactive Support endpoint is required/available in this window.")
+        print("Use `neolabs replay` for archived telemetry and `neolabs evidence` for approved ticket/cloud/endpoint evidence.")
+        return
     resources = manifest["resources"]
     endpoints = resources.get("endpoints", [])
-    print(f"✓ Connected context refreshed for {manifest['pod_id']}.")
+    print(f"✓ {state} context refreshed for {manifest['pod_id']}.")
     print(f"✓ {len(endpoints) if isinstance(endpoints, list) else 0} authorised support endpoint(s) available.")
     print("Use only the resources displayed by `neolabs targets`.")
 
@@ -197,7 +225,8 @@ def status(_: argparse.Namespace) -> None:
     session = read_session()
     manifest = refresh(session)
     print("NEOLABS SECURITY LAB")
-    print("Status:   ONLINE SESSION")
+    print(f"State:    {manifest.get('lab_state') or 'LIVE'}")
+    print(f"Mode:     {manifest.get('runtime_mode') or 'live-control-plane'}")
     print(f"Track:    {manifest['track']}")
     print(f"Pod:      {manifest['pod_id']}")
     print(f"Scenario: {manifest.get('scenario_id') or 'not published'}")
@@ -210,13 +239,14 @@ def pod_info(_: argparse.Namespace) -> None:
     print(f"Pod:      {manifest['pod_id']}")
     print(f"Track:    {manifest['track']}")
     print(f"Scenario: {manifest.get('scenario_id') or 'not published'}")
+    print(f"State:    {manifest.get('lab_state') or 'LIVE'}")
     print("The pod is assigned server-side and cannot be changed from this client.")
 
 
 def scope(_: argparse.Namespace) -> None:
     manifest = refresh(read_session())
     print(f"Authorised pod: {manifest['pod_id']}")
-    print("IT Security Support uses resource-level authorization. Run `neolabs targets`.")
+    print("IT Security Support uses resource-level authorization. Run `neolabs targets` for live resources or `neolabs replay` for archived material.")
 
 
 def display_resource(item: Any) -> str:
@@ -230,21 +260,60 @@ def display_resource(item: Any) -> str:
 
 def targets(_: argparse.Namespace) -> None:
     manifest = refresh(read_session())
+    state = str(manifest.get("lab_state") or "LIVE")
     resources = manifest["resources"]
     print("AUTHORISED SUPPORT RESOURCES")
+    if state not in INTERACTIVE_STATES:
+        print(f"  - no interactive endpoints: current state is {state}")
     endpoints = resources.get("endpoints", [])
     assets = resources.get("assets", [])
-    found = False
-    if isinstance(endpoints, list):
+    if state in INTERACTIVE_STATES and isinstance(endpoints, list):
         for endpoint in endpoints:
             print(f"  - {display_resource(endpoint)}")
-            found = True
     if isinstance(assets, list):
         for asset in assets:
             print(f"  - asset: {asset}")
-            found = True
-    if not found:
-        print("  - none published")
+
+
+def local_path(directory: Path, key: str) -> Path:
+    name = Path(key).name or "replay.bin"
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", name)[:120]
+    digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:10]
+    return directory / f"{digest}-{safe}"
+
+
+def download_collection(kind: str) -> None:
+    session = read_session()
+    manifest = refresh(session)
+    response = request_json(validate_base_url(str(session["base_url"])), "/api/v1/lab-access/replay", token=str(session["session_token"]))
+    source_key = "telemetry_packs" if kind == "telemetry" else "evidence"
+    directory = REPLAY_DIR if kind == "telemetry" else EVIDENCE_DIR
+    items = response.get(source_key, [])
+    if not isinstance(items, list):
+        fail(f"replay gateway returned an invalid {source_key} list")
+    directory.mkdir(parents=True, exist_ok=True)
+    downloaded = 0
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get("key"), str) or not isinstance(item.get("url"), str):
+            continue
+        destination = local_path(directory, item["key"])
+        if destination.is_file():
+            continue
+        destination.write_bytes(download_bytes(item["url"]))
+        try:
+            os.chmod(destination, 0o600)
+        except OSError:
+            pass
+        downloaded += 1
+    print(f"✓ Downloaded {downloaded} new {kind} file(s) for {manifest['pod_id']} to {directory}.")
+
+
+def replay(_: argparse.Namespace) -> None:
+    download_collection("telemetry")
+
+
+def evidence(_: argparse.Namespace) -> None:
+    download_collection("evidence")
 
 
 def disconnect(_: argparse.Namespace) -> None:
@@ -264,6 +333,8 @@ def parser() -> argparse.ArgumentParser:
     x = sub.add_parser("status"); x.set_defaults(func=status)
     x = sub.add_parser("scope"); x.set_defaults(func=scope)
     x = sub.add_parser("targets"); x.set_defaults(func=targets)
+    x = sub.add_parser("replay"); x.set_defaults(func=replay)
+    x = sub.add_parser("evidence"); x.set_defaults(func=evidence)
     x = sub.add_parser("pod"); nested = x.add_subparsers(dest="pod_command", required=True); y = nested.add_parser("info"); y.set_defaults(func=pod_info)
     x = sub.add_parser("disconnect"); x.set_defaults(func=disconnect)
     return p
