@@ -4,6 +4,16 @@ This repository is the **NeoLabs × RIL IT Security Support Toolkit**. It provid
 
 Official weekly tasks and graded submissions belong in the separate **RIL_NeoLabs-Intern-Assignments** repository.
 
+## One-time CLI setup
+
+From this repository root install the student CLI locally:
+
+```bash
+python3 -m pip install --user -e .
+```
+
+Confirm `neolabs --help` works. If your operating system does not add the user-level Python scripts directory to `PATH`, follow the Python installation warning or use `python3 tools/neolabs.py` as the equivalent fallback.
+
 ## Before practical work
 
 1. Read `SUPPORT_BOUNDARIES.md`.
@@ -12,10 +22,10 @@ Official weekly tasks and graded submissions belong in the separate **RIL_NeoLab
 4. Authenticate and load the current support context:
 
 ```bash
-python3 tools/neolabs.py login
-python3 tools/neolabs.py connect
-python3 tools/neolabs.py status
-python3 tools/neolabs.py targets
+neolabs login
+neolabs connect
+neolabs status
+neolabs targets
 ```
 
 The broker decides which endpoints/assets belong to your pod. Do not hard-code a private IP or copy another pod's endpoint into a script.
@@ -41,9 +51,9 @@ The broker decides which endpoints/assets belong to your pod. Do not hard-code a
 ## Useful commands
 
 ```bash
-python3 tools/neolabs.py pod info
-python3 tools/neolabs.py targets
-python3 tools/neolabs.py disconnect
+neolabs pod info
+neolabs targets
+neolabs disconnect
 ```
 
 ## Repository boundary
