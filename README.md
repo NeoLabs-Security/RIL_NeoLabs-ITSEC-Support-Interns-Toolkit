@@ -15,8 +15,8 @@ It contains NeoLabs-branded learning material, read-only diagnostic helpers, syn
 ## Student flow
 
 1. Read `START_HERE.md`, `SUPPORT_BOUNDARIES.md` and `LEARNING_PATH.md`, then install the repo CLI once with `python3 -m pip install --user -e .`.
-2. Receive your pod number and private NeoLabs Access Code.
-3. Authenticate and load the live support context:
+2. Receive your pod number, stable NeoLabs lab URL and private NeoLabs Access Code.
+3. Authenticate and inspect the current runtime:
 
 ```bash
 neolabs login
@@ -25,15 +25,31 @@ neolabs status
 neolabs targets
 ```
 
-4. Diagnose only the endpoints/assets returned for your pod and ticket.
-5. Make a change only when the assignment/ticket explicitly authorises it.
-6. Submit the requested ticket, recovery, escalation and validation evidence to `RIL_NeoLabs-Intern-Assignments`.
+4. When an interactive surface is active, diagnose only the endpoints/assets returned for your pod and ticket.
+5. During replay windows, use:
+
+```bash
+neolabs replay
+neolabs evidence
+```
+
+for pod-scoped archived telemetry and approved native evidence without requiring the main VCC EC2 to remain on.
+6. Make a change only when the assignment/ticket explicitly authorises it.
+7. Submit the requested ticket, recovery, escalation and validation evidence to `RIL_NeoLabs-Intern-Assignments`.
+
+## Runtime states
+
+- **LIVE** — VCC support endpoints/account workflows are available.
+- **CLOUD_LIVE** — the approved S3/cloud support surface is active while the main VCC EC2 may be off.
+- **ENDPOINT_LIVE** — the disposable Week 11 endpoint is active while the main VCC EC2 may be off.
+- **REPLAY** — no interactive VCC change should be attempted; archived telemetry/evidence remains available for chronology, escalation and documentation.
+- **OFFLINE** — no current practical surface is published.
 
 ## Why live endpoint data is not committed here
 
-The VCC runtime may rebuild a pod with different internal/routable endpoints. The deployment controller publishes the current resources to the NeoLabs broker; `neolabs connect` refreshes them into ignored `runtime/access-manifest.json`.
+The VCC runtime may rebuild a pod with different endpoints. The deployment controller publishes current resources; the stable Replay Gateway mirrors those resources and runtime state. `neolabs connect` therefore knows whether the task is live or replay-only.
 
-That keeps this public toolkit reusable while still allowing authorised support work to receive the exact endpoints/assets needed for the current scenario.
+That keeps this public toolkit reusable and prevents an intern from applying an old endpoint from a previous live window.
 
 ## Toolkit contents
 
@@ -46,6 +62,7 @@ That keeps this public toolkit reusable while still allowing authorised support 
 - security-incident intake and SOC escalation;
 - change/rollback/handover guidance;
 - read-only Windows/Linux diagnostic collectors;
+- pod-scoped replay/evidence download for offline investigation;
 - synthetic tickets and recovery labs;
 - professional support templates;
 - NeoLabs-branded publication pipeline.
@@ -53,20 +70,24 @@ That keeps this public toolkit reusable while still allowing authorised support 
 ## Architecture boundary
 
 **Toolkit repo:** Learn + Connect + Operate  
-**VCC Security Lab:** Assigned Systems + Scenario + Synthetic Data  
-**Lab Access Broker:** Authenticate + Resolve Pod + Publish Support Resources  
+**Replay Gateway:** Stable Authentication + Runtime State + S3 Replay  
+**VCC EC2:** On-demand Support Endpoints + VCC Scenario  
+**Lab S3/Cloud:** Storage-native Weeks 7–9 + Archived Evidence  
+**Disposable Endpoint:** Week 11 live endpoint only when required  
 **Central Assignment repo:** Task + Evidence + Submission + Assessment
 
 ## Safety boundary
 
-- Work only on resources returned by the broker and explicitly authorised by the ticket/assignment.
+- Work only on resources returned by the current gateway manifest and explicitly authorised by the ticket/assignment.
 - Prefer read-only diagnosis before changes.
 - Obtain approval before changing accounts, permissions, firewall rules, services, packages or security controls.
+- Never attempt live changes when `neolabs status` reports `REPLAY` or `OFFLINE`.
 - Preserve the original state and rollback plan.
 - Never disable security controls merely to make an error disappear.
 - Never commit Access Codes, runtime manifests, private keys, real user data or unredacted evidence.
 - Escalate suspected incidents to SOC rather than destroying evidence.
+- Students never receive AWS credentials or bucket-wide S3 access.
 
 ## Release status
 
-The toolkit on `main` contains the installable broker client, existing support helpers and the current branded Week 2 learning pack. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
+The toolkit on `main` contains the installable client, runtime-state-aware support resources, pod-scoped replay/evidence download, existing diagnostic helpers and the current branded Week 2 learning pack. Interactive support work depends only on the appropriate live surface being published; investigation/reporting can continue from S3 during approved replay windows.
