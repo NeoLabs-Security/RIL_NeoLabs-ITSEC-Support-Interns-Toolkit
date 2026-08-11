@@ -1,44 +1,64 @@
 # NeoLabs IT Security Support Intern Toolkit
 
-The **NeoLabs IT Security Support Intern Toolkit** is the shared learning, practice and technical enablement repository for secure endpoint, identity, systems and service-support training through the VCC Security Lab.
+The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn + Connect + Operate** repository for secure endpoint, identity, network and service-support training through the VCC Security Lab.
 
-It contains NeoLabs-branded learning materials, read-only diagnostic tools, secure baseline checklists, synthetic support tickets, backup-and-recovery labs, change-management templates and SOC escalation resources. Official weekly assignments, live credentials, private infrastructure details, mentor ground truth and student submissions belong in the restricted central assignments workflow—not here.
+It contains NeoLabs-branded learning material, read-only diagnostic helpers, synthetic tickets/recovery labs, change/rollback templates, SOC escalation resources and the NeoLabs pod-access client. Official weekly assignments and graded submissions belong in the separate central assignments repository.
 
-## Start here
+## Student flow
 
-1. Read `SUPPORT_BOUNDARIES.md`.
-2. Follow `LEARNING_PATH.md`.
-3. Use `docs/README.md` as the complete documentation index.
-4. Run only the approved read-only collectors before considering changes.
-5. Use the ticket, escalation, change, rollback and handover templates during assigned work.
-6. Make a live change only when the assignment or support ticket explicitly authorises it.
+1. Read `START_HERE.md`, `SUPPORT_BOUNDARIES.md` and `LEARNING_PATH.md`.
+2. Receive your pod number and private NeoLabs Access Code.
+3. Authenticate and load the live support context:
 
-## Version 1 contents
+```bash
+python3 tools/neolabs.py login
+python3 tools/neolabs.py connect
+python3 tools/neolabs.py status
+python3 tools/neolabs.py targets
+```
 
-- secure IT support and ticket-handling foundations;
-- Windows and Linux troubleshooting and security review;
-- networking and connectivity diagnosis;
-- asset, software, identity and access management;
-- endpoint security-baseline review;
-- patch and vulnerability remediation;
-- backup, restore, integrity and service-continuity practice;
-- security incident intake and SOC escalation;
-- change, rollback and handover guidance;
-- preconfigured read-only Windows and Linux diagnostic collectors;
-- synthetic support and recovery labs;
-- professional ticket, access, patch, recovery, escalation and handover templates;
-- repository controls that reject destructive shortcuts, credential material, log clearing and security-control disabling.
+4. Diagnose only the endpoints/assets returned for your pod and ticket.
+5. Make a change only when the assignment/ticket explicitly authorises it.
+6. Submit the requested ticket, recovery, escalation and validation evidence to `RIL_NeoLabs-Intern-Assignments`.
+
+## Why live endpoint data is not committed here
+
+The VCC runtime may rebuild a pod with different internal/routable endpoints. The deployment controller publishes the current resources to the NeoLabs broker; `neolabs connect` refreshes them into ignored `runtime/access-manifest.json`.
+
+That keeps this public toolkit reusable while still allowing authorised support work to receive the exact endpoints/assets needed for the current scenario.
+
+## Toolkit contents
+
+- secure support/ticket-handling foundations;
+- Windows/Linux troubleshooting and security review;
+- networking/connectivity diagnosis;
+- asset/software/identity/access management;
+- endpoint baseline and patch/remediation material;
+- backup/restore/integrity/service-continuity practice;
+- security-incident intake and SOC escalation;
+- change/rollback/handover guidance;
+- read-only Windows/Linux diagnostic collectors;
+- synthetic tickets and recovery labs;
+- professional support templates;
+- NeoLabs-branded publication pipeline.
+
+## Architecture boundary
+
+**Toolkit repo:** Learn + Connect + Operate  
+**VCC Security Lab:** Assigned Systems + Scenario + Synthetic Data  
+**Lab Access Broker:** Authenticate + Resolve Pod + Publish Support Resources  
+**Central Assignment repo:** Task + Evidence + Submission + Assessment
 
 ## Safety boundary
 
-- Work only on assigned training systems or systems explicitly authorised by NeoLabs.
-- Prefer read-only diagnosis before making changes.
-- Obtain approval before changing accounts, firewall rules, services, packages, permissions or security controls.
-- Record the original state, implementation steps, validation evidence and rollback plan.
-- Never disable security controls simply to make an error disappear.
-- Never commit credentials, private keys, real user data, private URLs or unredacted evidence.
-- Escalate suspected incidents to the SOC track rather than destroying evidence.
+- Work only on resources returned by the broker and explicitly authorised by the ticket/assignment.
+- Prefer read-only diagnosis before changes.
+- Obtain approval before changing accounts, permissions, firewall rules, services, packages or security controls.
+- Preserve the original state and rollback plan.
+- Never disable security controls merely to make an error disappear.
+- Never commit Access Codes, runtime manifests, private keys, real user data or unredacted evidence.
+- Escalate suspected incidents to SOC rather than destroying evidence.
 
 ## Release status
 
-The Version 1 student toolkit is on `main` and is ready for onboarding, guided practice and supervised VCC support work. Live changes remain dependent on the authority stated in the issued assignment or support ticket.
+The toolkit on `main` contains the broker client and existing support helpers. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
