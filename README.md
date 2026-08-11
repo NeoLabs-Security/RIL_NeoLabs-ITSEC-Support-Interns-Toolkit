@@ -14,15 +14,15 @@ It contains NeoLabs-branded learning material, read-only diagnostic helpers, syn
 
 ## Student flow
 
-1. Read `START_HERE.md`, `SUPPORT_BOUNDARIES.md` and `LEARNING_PATH.md`.
+1. Read `START_HERE.md`, `SUPPORT_BOUNDARIES.md` and `LEARNING_PATH.md`, then install the repo CLI once with `python3 -m pip install --user -e .`.
 2. Receive your pod number and private NeoLabs Access Code.
 3. Authenticate and load the live support context:
 
 ```bash
-python3 tools/neolabs.py login
-python3 tools/neolabs.py connect
-python3 tools/neolabs.py status
-python3 tools/neolabs.py targets
+neolabs login
+neolabs connect
+neolabs status
+neolabs targets
 ```
 
 4. Diagnose only the endpoints/assets returned for your pod and ticket.
@@ -69,4 +69,4 @@ That keeps this public toolkit reusable while still allowing authorised support 
 
 ## Release status
 
-The toolkit on `main` contains the broker client, existing support helpers and the current branded Week 2 learning pack. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
+The toolkit on `main` contains the installable broker client, existing support helpers and the current branded Week 2 learning pack. Live VCC work still depends on the broker being deployed/enabled and current pod support resources being published by the operator pipeline.
