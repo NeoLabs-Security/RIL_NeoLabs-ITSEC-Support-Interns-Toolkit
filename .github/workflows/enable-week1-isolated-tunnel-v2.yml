@@ -1,0 +1,39 @@
+name: Enable Week 1 Support isolated tunnel v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/enable-week1-tunnel-client.py'
+      - '.github/workflows/enable-week1-isolated-tunnel-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch and validate client
+        run: |
+          set -euo pipefail
+          python scripts/enable-week1-tunnel-client.py
+          python -m py_compile tools/neolabs.py
+          grep -q "ssh-local-forward" tools/neolabs.py
+          grep -q "ExitOnForwardFailure" tools/neolabs.py
+      - name: Commit client
+        run: |
+          git config user.name "neolabs-toolkit-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/neolabs.py
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Open assigned Support pod through isolated NeoLabs SSH tunnel"
+          git push
