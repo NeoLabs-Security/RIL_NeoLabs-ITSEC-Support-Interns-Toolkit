@@ -13,7 +13,10 @@ The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn +
 2. [`publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`](publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf) — evidence-first support and diagnostic foundations.
 3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md) — mandatory safety/change boundary.
 
-### 2. Windows setup — no pip/PATH work required
+### 2. Windows setup — IMPORTANT
+
+> **Windows interns: use ` .\neolabs.cmd ` — not `neolabs`.**  
+> Run every NeoLabs command from inside this toolkit folder. Do not use bare `neolabs` and do not manually add the Python Scripts folder to PATH.
 
 From the cloned toolkit folder, double-click:
 
@@ -33,7 +36,7 @@ The launcher uses the official NeoLabs gateway automatically and runs the toolki
 
 ### 3. Authenticate and open your isolated live tunnel
 
-Run:
+Use these exact Windows commands:
 
 ```powershell
 .\neolabs.cmd login
@@ -44,7 +47,7 @@ Run:
 .\neolabs.cmd connect
 ```
 
-`login` asks only for your assigned pod number and your private NeoLabs Access Code. For Week 1, `connect` opens a **pod-isolated SSH local forward**. When SSH asks for a password, enter the same private **NeoLabs Access Code** you used for login and keep that terminal open.
+`login` asks only for your assigned pod number and your private NeoLabs Access Code. For Week 1, `connect` opens a pod-isolated local connection. When prompted for the connection password, use the same private NeoLabs Access Code and keep that terminal open.
 
 Your authorised learner/support surface is then available only at:
 
@@ -52,11 +55,23 @@ Your authorised learner/support surface is then available only at:
 http://127.0.0.1:18080
 ```
 
-Work only with that server-issued local endpoint while the tunnel is running. Do not reuse another student's tunnel or connect directly to the public EC2 application ports.
+Work only with that server-issued local endpoint while the connection is running.
 
 ### 4. Complete Operation Night Watch
 
 Use the Week 1 pack for the service checks, assigned synthetic support ticket, evidence requirements and knowledge-base article. Official submissions belong in `RIL_NeoLabs-Intern-Assignments`.
+
+## Windows command reminder
+
+```text
+CORRECT:   .\neolabs.cmd login
+CORRECT:   .\neolabs.cmd status
+CORRECT:   .\neolabs.cmd connect
+
+DO NOT USE: neolabs login
+DO NOT USE: neolabs status
+DO NOT USE: python tools\neolabs.py login --base-url ...
+```
 
 ## Week 1 study shelf
 
@@ -71,7 +86,7 @@ Use the Week 1 pack for the service checks, assigned synthetic support ticket, e
 - local Windows `neolabs.cmd` launcher with the official gateway preconfigured;
 - Windows readiness check with no pip/PATH dependency;
 - server-managed pod/track/support-resource scope;
-- restricted SSH local-forward workflow using the private Access Code;
+- restricted pod-isolated connection workflow using the private Access Code;
 - Windows and Linux read-only baseline collectors;
 - networking/connectivity decision trees;
 - synthetic support/recovery exercises;
@@ -83,11 +98,11 @@ Use the Week 1 pack for the service checks, assigned synthetic support ticket, e
 ```text
 README.md                 ← you are here
 setup-windows.cmd         ← one-click Windows readiness check
-neolabs.cmd               ← Windows launcher; avoids pip/PATH problems
+neolabs.cmd               ← use this for ALL Windows NeoLabs commands
 neolabs.ps1               ← PowerShell launcher implementation
 docs/week-01/             ← current task/foundations sources
 publications/             ← branded student PDFs
-tools/neolabs.py          ← pod access/authenticator client
+tools/neolabs.py          ← underlying client
 scripts/                  ← read-only diagnostics
 templates/                ← support/evidence/handover forms
 labs/                     ← safe practice tickets/recovery
@@ -96,13 +111,7 @@ research/                 ← deeper reference material
 
 ## Safety boundary
 
-- Prefer read-only diagnosis before changes.
-- Work only on resources returned by the current gateway manifest and explicitly authorised by the task/ticket.
-- Obtain approval before changing accounts, permissions, firewall rules, services, packages or security controls.
-- Preserve original state and rollback information.
-- Never commit Access Codes, runtime manifests, private keys, real user data or unredacted evidence.
-- Escalate suspected compromise rather than destroying evidence.
-- Stop if another pod, real personal data, a credential or unexpected infrastructure becomes visible.
+Prefer read-only diagnosis before changes. Work only on resources returned by the current gateway manifest and explicitly authorised by the task/ticket. Preserve original state and rollback information. Never share private access details or real user information. Stop and contact a mentor if another pod, real personal data, a credential, or unexpected infrastructure becomes visible.
 
 **Toolkit:** Learn + Connect + Operate  
 **VCC:** scheduled pod-isolated support surface  
