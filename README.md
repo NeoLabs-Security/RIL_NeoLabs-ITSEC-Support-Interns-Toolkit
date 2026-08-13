@@ -52,8 +52,10 @@ Use these exact Windows commands:
 Your authorised learner/support surface is then available only at:
 
 ```text
-http://127.0.0.1:18080
+http://localhost:18080
 ```
+
+For the internship learner app, use the normal email-and-password form. Google sign-in is intentionally disabled in internship pods.
 
 Work only with that server-issued local endpoint while the connection is running.
 
