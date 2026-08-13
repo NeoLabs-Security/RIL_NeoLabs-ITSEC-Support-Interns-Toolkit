@@ -9,9 +9,9 @@ The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn +
 
 ### 1. Read the current pack
 
-- Source: [`docs/week-01/operation-night-watch-launch-pack.md`](docs/week-01/operation-night-watch-launch-pack.md)
-- Branded PDF: [`publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf`](publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf)
-- Boundaries: [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md)
+1. [`publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf`](publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf) — exact Week 1 task and deliverables.
+2. [`publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`](publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf) — evidence-first support and diagnostic foundations.
+3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md) — mandatory safety/change boundary.
 
 ### 2. Install the NeoLabs client
 
@@ -19,7 +19,7 @@ The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn +
 python -m pip install -e .
 ```
 
-### 3. Authenticate and inspect your authorised resources
+### 3. Authenticate and open your isolated live tunnel
 
 Set the NeoLabs gateway URL supplied in your onboarding message, then run:
 
@@ -29,13 +29,22 @@ neolabs status
 neolabs pod info
 neolabs scope
 neolabs targets
+neolabs connect
 ```
 
-Work only with resources returned for **your assigned pod**. If no live support endpoint is published, do not invent or reuse an old address.
+For Week 1, `neolabs connect` opens a **pod-isolated SSH local forward**. When SSH asks for a password, enter the same private **NeoLabs Access Code** you used for `neolabs login` and keep that terminal open.
+
+Your authorised learner/support surface is then available only at:
+
+```text
+http://127.0.0.1:18080
+```
+
+Work only with that server-issued local endpoint while the tunnel is running. Do not reuse another student's tunnel or connect directly to the public EC2 application ports.
 
 ### 4. Complete Operation Night Watch
 
-Use the Week 1 pack for the service checks, support ticket(s), evidence requirements and knowledge-base article. Official submissions belong in `RIL_NeoLabs-Intern-Assignments`.
+Use the Week 1 pack for the service checks, assigned synthetic support ticket, evidence requirements and knowledge-base article. Official submissions belong in `RIL_NeoLabs-Intern-Assignments`.
 
 ## Week 1 study shelf
 
@@ -49,17 +58,18 @@ Use the Week 1 pack for the service checks, support ticket(s), evidence requirem
 
 - installable `neolabs` authenticator/access client;
 - server-managed pod/track/support-resource scope;
+- restricted SSH local-forward workflow using the private Access Code;
 - Windows and Linux read-only baseline collectors;
 - networking/connectivity decision trees;
 - synthetic support/recovery exercises;
 - support ticket, escalation, change and handover templates;
-- branded educational/publication workflows.
+- branded Week 1 launch/foundations PDFs.
 
 ## Repository map
 
 ```text
 README.md                 ← you are here
-docs/week-01/             ← current Week 1 instructions
+docs/week-01/             ← current task/foundations sources
 publications/             ← branded student PDFs
 tools/neolabs.py          ← pod access/authenticator client
 scripts/                  ← read-only diagnostics
@@ -79,5 +89,5 @@ research/                 ← deeper reference material
 - Stop if another pod, real personal data, a credential or unexpected infrastructure becomes visible.
 
 **Toolkit:** Learn + Connect + Operate  
-**VCC:** scheduled authorised support surface  
+**VCC:** scheduled pod-isolated support surface  
 **Central Assignments:** submissions + assessment
