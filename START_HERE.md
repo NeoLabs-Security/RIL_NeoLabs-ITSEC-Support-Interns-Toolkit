@@ -1,66 +1,43 @@
 # Start Here — IT Security Support
 
-This repository is the **NeoLabs × RIL IT Security Support Toolkit**. It provides branded learning material, read-only diagnostic helpers, recovery/change templates and the student-side client that reveals only the support resources assigned to your VCC pod.
+This repository is the **NeoLabs × RIL IT Security Support Toolkit**. It contains the Week 1 learning material, read-only diagnostic helpers, templates and the student-side NeoLabs client.
 
 Official weekly tasks and graded submissions belong in the separate **RIL_NeoLabs-Intern-Assignments** repository.
 
-## One-time CLI setup
+## Windows — start here
 
-From this repository root install the student CLI locally:
+From this repository folder, double-click:
 
-```bash
-python3 -m pip install --user -e .
+```text
+setup-windows.cmd
 ```
 
-Confirm `neolabs --help` works. If your operating system does not add the user-level Python scripts directory to `PATH`, follow the Python installation warning or use `python3 tools/neolabs.py` as the equivalent fallback.
+The readiness check verifies the workstation prerequisites. Windows interns do **not** need to run `pip install`, edit the Python Scripts PATH or configure the programme gateway manually.
+
+After the check passes, open PowerShell in this toolkit folder and confirm the local launcher works:
+
+```powershell
+.\neolabs.cmd --help
+```
+
+Then return to [`README.md`](README.md) and follow the current Week 1 sequence exactly.
 
 ## Before practical work
 
 1. Read `SUPPORT_BOUNDARIES.md`.
-2. Set the programme-provided lab base URL as `NEOLABS_LAB_BASE_URL`.
-3. Use the private pod number + NeoLabs Access Code delivered for the week.
-4. Authenticate and load the current support context:
-
-```bash
-neolabs login
-neolabs connect
-neolabs status
-neolabs targets
-```
-
-The broker decides which endpoints/assets belong to your pod. Do not hard-code a private IP or copy another pod's endpoint into a script.
-
-## What `connect` does
-
-- refreshes the current pod assignment from the NeoLabs broker;
-- stores the live manifest in the ignored `runtime/` directory;
-- exposes only the support endpoints/assets published for your pod and current scenario;
-- lets the existing diagnostic/support scripts work from an authorised context without putting live addresses in this public repository.
+2. Read the current Week 1 launch pack under `publications/`.
+3. Have your assigned pod number and your private onboarding details ready.
+4. Use only the local `neolabs.cmd` launcher shown in the current README.
 
 ## Support workflow
 
-1. Confirm the assigned ticket/requester and the resource shown by `neolabs targets`.
-2. Record the reported symptom and current state.
-3. Begin with read-only inspection.
-4. Preserve evidence relevant to the ticket.
-5. Prepare rollback before a permitted change.
-6. Obtain approval for changes affecting accounts, permissions, firewalls, services, packages, updates or security controls.
-7. Validate the result and document anything unresolved.
-8. Escalate suspected compromise to the SOC track rather than destroying evidence.
-
-## Useful commands
-
-```bash
-neolabs pod info
-neolabs targets
-neolabs disconnect
-```
+Begin with read-only diagnosis, preserve evidence, document the reported symptom and current state, obtain approval before making changes, validate the result and escalate suspected compromise instead of destroying evidence.
 
 ## Repository boundary
 
 This public toolkit may contain reusable tools, synthetic tickets/labs, templates and NeoLabs-branded learning material. It must not contain Access Codes, session tokens, private keys, real user/device information, unredacted cohort evidence, mentor answer keys or production data.
 
-The `runtime/` folder is ignored because it is regenerated from the live server-issued manifest.
+The `runtime/` folder is ignored because it is regenerated from the server-issued context.
 
 ## Learning order
 
