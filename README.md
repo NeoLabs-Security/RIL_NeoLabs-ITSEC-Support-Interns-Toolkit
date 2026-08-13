@@ -13,26 +13,38 @@ The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn +
 2. [`publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`](publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf) — evidence-first support and diagnostic foundations.
 3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md) — mandatory safety/change boundary.
 
-### 2. Install the NeoLabs client
+### 2. Windows setup — no pip/PATH work required
 
-```bash
-python -m pip install -e .
+From the cloned toolkit folder, double-click:
+
+```text
+setup-windows.cmd
 ```
+
+It checks that Python and the Windows OpenSSH Client are available. You do **not** need to run `pip install -e .`, edit PATH, or manually enter the NeoLabs gateway URL.
+
+Then open PowerShell in this toolkit folder and test the launcher:
+
+```powershell
+.\neolabs.cmd --help
+```
+
+The launcher uses the official NeoLabs gateway automatically and runs the toolkit client with the Python installation Windows can find.
 
 ### 3. Authenticate and open your isolated live tunnel
 
-Set the NeoLabs gateway URL supplied in your onboarding message, then run:
+Run:
 
-```bash
-neolabs login
-neolabs status
-neolabs pod info
-neolabs scope
-neolabs targets
-neolabs connect
+```powershell
+.\neolabs.cmd login
+.\neolabs.cmd status
+.\neolabs.cmd pod info
+.\neolabs.cmd scope
+.\neolabs.cmd targets
+.\neolabs.cmd connect
 ```
 
-For Week 1, `neolabs connect` opens a **pod-isolated SSH local forward**. When SSH asks for a password, enter the same private **NeoLabs Access Code** you used for `neolabs login` and keep that terminal open.
+`login` asks only for your assigned pod number and your private NeoLabs Access Code. For Week 1, `connect` opens a **pod-isolated SSH local forward**. When SSH asks for a password, enter the same private **NeoLabs Access Code** you used for login and keep that terminal open.
 
 Your authorised learner/support surface is then available only at:
 
@@ -56,7 +68,8 @@ Use the Week 1 pack for the service checks, assigned synthetic support ticket, e
 
 ## What is preconfigured here
 
-- installable `neolabs` authenticator/access client;
+- local Windows `neolabs.cmd` launcher with the official gateway preconfigured;
+- Windows readiness check with no pip/PATH dependency;
 - server-managed pod/track/support-resource scope;
 - restricted SSH local-forward workflow using the private Access Code;
 - Windows and Linux read-only baseline collectors;
@@ -69,6 +82,9 @@ Use the Week 1 pack for the service checks, assigned synthetic support ticket, e
 
 ```text
 README.md                 ← you are here
+setup-windows.cmd         ← one-click Windows readiness check
+neolabs.cmd               ← Windows launcher; avoids pip/PATH problems
+neolabs.ps1               ← PowerShell launcher implementation
 docs/week-01/             ← current task/foundations sources
 publications/             ← branded student PDFs
 tools/neolabs.py          ← pod access/authenticator client
