@@ -29,18 +29,24 @@ jobs:
           curl --fail --silent --show-error --location \
             "https://raw.githubusercontent.com/NeoLabs-Security/RIL_NeoLabs-SOC1-interns-toolkit-/d81a289a5f79dbfa83af244065cca2451f967f3a/scripts/build-weekly-publication.py" \
             --output /tmp/neolabs-build-weekly-publication.py
-      - name: Build branded Week 1 PDF
+      - name: Build branded Week 1 PDFs
         run: |
           python /tmp/neolabs-build-weekly-publication.py \
             --source docs/week-01/operation-night-watch-launch-pack.md \
             --output publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf \
             --track "IT SECURITY SUPPORT" --week "Week 01"
+          python /tmp/neolabs-build-weekly-publication.py \
+            --source docs/week-01/secure-support-foundations.md \
+            --output publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf \
+            --track "IT SECURITY SUPPORT" --week "Week 01"
           test -s publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf
-      - name: Commit publication
+          test -s publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf
+      - name: Commit publications
         run: |
           git config user.name "neolabs-publications-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf
+          git add publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf \
+                  publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Build branded Week 01 Support launch pack"
+          git commit -m "Build branded Week 01 Support production PDFs"
           git push
