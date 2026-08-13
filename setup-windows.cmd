@@ -21,7 +21,15 @@ if errorlevel 1 (
 ) else (
   echo [OK] OpenSSH Client detected
 )
+call "%~dp0neolabs.cmd" --help >nul
+if errorlevel 1 (
+  echo [ERROR] NeoLabs launcher self-check failed.
+  pause
+  exit /b 1
+)
+echo [OK] NeoLabs launcher ready
 echo.
-echo Windows prerequisites check complete.
+echo No pip installation or PATH editing is required.
+echo From this toolkit folder, use: .\neolabs.cmd login
 echo.
 pause
