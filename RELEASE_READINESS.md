@@ -1,60 +1,43 @@
-# IT Security Support Toolkit Version 1 Release Readiness
+# IT Security Support Toolkit — Operational Readiness
 
-## Student-facing content
+**Status date:** 2026-08-14  
+**State:** active programme baseline on `main`  
+**Current assignment:** Week 01 — Operation Night Watch
 
-- [x] Start guide, learning path and support boundaries
-- [x] Secure support foundations
-- [x] Windows security diagnostics
-- [x] Linux security diagnostics
-- [x] Networking decision trees
-- [x] Asset and software management
-- [x] Identity and access operations
-- [x] Patch and vulnerability management
-- [x] Backup and recovery
-- [x] Incident intake and SOC escalation
-- [x] Cloud and SaaS support foundations
-- [x] Change management, handover and capstone
-- [x] Troubleshooting guide
-- [x] Twelve-lab catalogue
+Earlier release-candidate/operator-to-do notes are superseded by the active five-pod programme model in [`PROGRAMME_CURRENT_STATE.md`](PROGRAMME_CURRENT_STATE.md).
 
-## Tools and templates
+## Student-facing readiness
 
-- [x] Read-only Windows baseline collector
-- [x] Read-only Linux baseline collector
-- [x] Guarded synthetic backup and restore rehearsal
-- [x] Support ticket template
-- [x] Account and access review
-- [x] Change request
-- [x] Asset register
-- [x] Patch deployment report
-- [x] Backup and restore test record
-- [x] SOC escalation form
-- [x] Technical handover
-- [x] Synthetic ticket pack
+- [x] Start guide, current programme state, learning path and support boundaries
+- [x] Secure support, Windows/Linux diagnostics and network decision trees
+- [x] Asset/software/identity operations
+- [x] Patch/vulnerability and backup/recovery guidance
+- [x] Incident intake/SOC escalation and cloud/SaaS foundations
+- [x] Change management, handover and capstone learning material
+- [x] Troubleshooting, labs, synthetic tickets and templates
+- [x] Week 1 launch pack/publications
 
-## Safety and validation
+## Tools/runtime readiness
 
-- [x] Bash syntax checks
-- [x] PowerShell syntax checks
-- [x] Synthetic recovery rehearsal and manifest comparison
-- [x] Credential and private-key boundary checks
-- [x] Prohibited destructive-command checks
-- [x] Prohibited log-clearing and security-control disabling checks
-- [x] Read-only diagnosis as the default
-- [x] Approval, validation and rollback required for changes
+- [x] Toolkit-local Windows NeoLabs launcher with official gateway preconfigured
+- [x] Server-authoritative intern → track → pod/resource scope
+- [x] Pod-isolated Week 1 local learner/support surface (`localhost:18080` while published)
+- [x] Read-only Windows/Linux baseline collectors
+- [x] Guarded synthetic recovery rehearsal
+- [x] Credential/private-key boundary checks
+- [x] Prohibited destructive/log-clearing/security-control disabling checks
+- [x] Approval + validation + rollback required for changes
 
-## Operator actions before cohort use
+## Student operating rule
 
-- [ ] Merge the Version 1 release PR after review
-- [ ] Confirm repository visibility and student permissions
-- [ ] Publish the track GitHub fundamentals guide
-- [ ] Configure the central assignments repository
-- [ ] Test collectors on representative Windows and Linux student systems
-- [ ] Rehearse support labs and VCC remediation actions
-- [ ] Confirm SOC escalation and mentor channels
-- [ ] Test one complete assignment and Pull Request with a synthetic intern
-- [ ] Confirm backup locations, evidence handling and cleanup procedures
+On Windows: run `setup-windows.cmd` once, then use `.\neolabs.cmd login/status/pod info/scope/targets/connect` from the toolkit folder. A global `pip install`, PATH edit or manual gateway configuration is not required.
 
-## Release decision
+Live VCC support work is permitted only while the current central assignment and server manifest expose the resource/window. An old endpoint or technically reachable system is not continuing authorisation.
 
-The public toolkit is ready for student study and synthetic local practice when CI passes and the release PR is merged. Any live account, endpoint, configuration or VCC remediation action remains controlled by the assigned ticket, mentor approval and programme Rules of Engagement.
+## Current release decision
+
+The toolkit is active for programme use. Week 1 is normal-service baseline/support practice. Later-week material can be staged before release; only the central assignment + current server state authorise practical work.
+
+## Stop conditions
+
+Do not continue when another pod/resource becomes visible, real personal/production data or credentials appear, the required change is not explicitly authorised, rollback/validation cannot be preserved, unexpected infrastructure becomes accessible or service stability is affected.
