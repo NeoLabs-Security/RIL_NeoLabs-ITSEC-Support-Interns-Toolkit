@@ -2,41 +2,22 @@
 
 The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn + Connect + Operate** repository for authorised secure support training through the VCC Security Lab.
 
-## 🚀 WEEK 1 — START HERE
+> **Current assignment:** Week 01 — Operation Night Watch.  
+> **Current architecture/status:** [`PROGRAMME_CURRENT_STATE.md`](PROGRAMME_CURRENT_STATE.md)
 
-**Scenario:** Operation Night Watch  
-**Goal:** verify normal learner services, practise evidence-preserving troubleshooting and establish a support baseline.
+## Week 1 objective
 
-### 1. Read the current pack
+Verify normal learner services, practise evidence-preserving troubleshooting and establish a support baseline for later security scenarios.
 
-1. [`publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf`](publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf) — exact Week 1 task and deliverables.
-2. [`publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`](publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf) — evidence-first support and diagnostic foundations.
-3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md) — mandatory safety/change boundary.
+Read first:
 
-### 2. Windows setup — IMPORTANT
+1. `publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf`
+2. `publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`
+3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md)
 
-> **Windows interns: use ` .\neolabs.cmd ` — not `neolabs`.**  
-> Run every NeoLabs command from inside this toolkit folder. Do not use bare `neolabs` and do not manually add the Python Scripts folder to PATH.
+## Windows — current startup
 
-From the cloned toolkit folder, double-click:
-
-```text
-setup-windows.cmd
-```
-
-It checks that Python and the Windows OpenSSH Client are available. You do **not** need to run `pip install -e .`, edit PATH, or manually enter the NeoLabs gateway URL.
-
-Then open PowerShell in this toolkit folder and test the launcher:
-
-```powershell
-.\neolabs.cmd --help
-```
-
-The launcher uses the official NeoLabs gateway automatically and runs the toolkit client with the Python installation Windows can find.
-
-### 3. Authenticate and open your isolated live tunnel
-
-Use these exact Windows commands:
+From the latest toolkit checkout, double-click `setup-windows.cmd` once. Then open PowerShell in this toolkit folder and use:
 
 ```powershell
 .\neolabs.cmd login
@@ -47,74 +28,55 @@ Use these exact Windows commands:
 .\neolabs.cmd connect
 ```
 
-`login` asks only for your assigned pod number and your private NeoLabs Access Code. For Week 1, `connect` opens a pod-isolated local connection. When prompted for the connection password, use the same private NeoLabs Access Code and keep that terminal open.
+Windows interns do **not** need a global `pip install`, Python Scripts PATH changes or a manually entered gateway URL. Do not use bare `neolabs` on Windows.
 
-Your authorised learner/support surface is then available only at:
+`login` asks only for the assigned pod number + private NeoLabs Access Code. The server controls pod/track/current support resources.
+
+## Week 1 support surface
+
+During the approved interactive window, `connect` opens the restricted pod-isolated learner/support surface, normally:
 
 ```text
 http://localhost:18080
 ```
 
-For the internship learner app, use the normal email-and-password form. Google sign-in is intentionally disabled in internship pods.
+Keep the connection terminal open. The internship learner app uses its normal email/password form; Google sign-in is intentionally disabled in internship pods.
 
-Work only with that server-issued local endpoint while the connection is running.
+Confirm current `targets` before work. Never substitute the public EC2 address, an old endpoint or another pod. If no current support resource is published, wait for the approved window.
 
-### 4. Complete Operation Night Watch
+## Operation Night Watch workflow
 
-Use the Week 1 pack for the service checks, assigned synthetic support ticket, evidence requirements and knowledge-base article. Official submissions belong in `RIL_NeoLabs-Intern-Assignments`.
+1. Verify the current server-issued support endpoint/resource.
+2. Verify the normal learner workflow and approved functions.
+3. Work through the supplied synthetic support/onboarding ticket(s).
+4. Separate browser/application symptoms from device, DNS, network and account symptoms.
+5. Preserve non-sensitive evidence before proposing changes.
+6. Record symptom, evidence, diagnosis, action/recommendation, validation and escalation status.
+7. Write one short knowledge-base article for a common Week 1 issue.
 
-## Windows command reminder
+Official graded submissions belong in `NeoLabs-Security/RIL_NeoLabs-Intern-Assignments`, not this toolkit.
 
-```text
-CORRECT:   .\neolabs.cmd login
-CORRECT:   .\neolabs.cmd status
-CORRECT:   .\neolabs.cmd connect
+## Change/safety boundary
 
-DO NOT USE: neolabs login
-DO NOT USE: neolabs status
-DO NOT USE: python tools\neolabs.py login --base-url ...
-```
-
-## Week 1 study shelf
-
-- `docs/01-secure-support-foundations/README.md`
-- `docs/02-windows-diagnostics/README.md`
-- `docs/03-linux-diagnostics/README.md`
-- `docs/04-networking-decision-trees/README.md`
-- templates under `templates/`
-
-## What is preconfigured here
-
-- local Windows `neolabs.cmd` launcher with the official gateway preconfigured;
-- Windows readiness check with no pip/PATH dependency;
-- server-managed pod/track/support-resource scope;
-- restricted pod-isolated connection workflow using the private Access Code;
-- Windows and Linux read-only baseline collectors;
-- networking/connectivity decision trees;
-- synthetic support/recovery exercises;
-- support ticket, escalation, change and handover templates;
-- branded Week 1 launch/foundations PDFs.
+Read-only diagnosis is the default. Do not change accounts, permissions, firewall rules, services, packages or security controls unless the current task explicitly authorises it. Preserve original state and rollback information. Stop/escalate suspected compromise, another pod/resource becoming visible, real personal/production data or credentials, unapproved privilege/configuration changes, unexpected infrastructure access or service instability.
 
 ## Repository map
 
 ```text
-README.md                 ← you are here
-setup-windows.cmd         ← one-click Windows readiness check
-neolabs.cmd               ← use this for ALL Windows NeoLabs commands
-neolabs.ps1               ← PowerShell launcher implementation
-docs/week-01/             ← current task/foundations sources
-publications/             ← branded student PDFs
-tools/neolabs.py          ← underlying client
-scripts/                  ← read-only diagnostics
-templates/                ← support/evidence/handover forms
-labs/                     ← safe practice tickets/recovery
-research/                 ← deeper reference material
+README.md                   ← current start page
+PROGRAMME_CURRENT_STATE.md  ← current runtime/access reference
+START_HERE.md               ← detailed onboarding
+SUPPORT_BOUNDARIES.md        ← mandatory authority/change boundary
+setup-windows.cmd           ← Windows readiness check
+neolabs.cmd                 ← Windows toolkit-local launcher
+docs/week-01/               ← current Week 1 sources
+publications/               ← branded student PDFs
+tools/neolabs.py            ← underlying access client
+scripts/                    ← read-only diagnostics
+templates/                  ← support/evidence/handover forms
+labs/                       ← safe synthetic practice
 ```
 
-## Safety boundary
-
-Prefer read-only diagnosis before changes. Work only on resources returned by the current gateway manifest and explicitly authorised by the task/ticket. Preserve original state and rollback information. Never share private access details or real user information. Stop and contact a mentor if another pod, real personal data, a credential, or unexpected infrastructure becomes visible.
-
 **Toolkit:** Learn + Connect + Operate  
-**VCC:** scheduled pod-isolated support surface  
+**VCC:** scheduled five-pod isolated support surface  
 **Central Assignments:** submissions + assessment
