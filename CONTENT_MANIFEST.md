@@ -1,31 +1,39 @@
 # Content Manifest
 
-| Material | Contents | Version 1 status |
+| Material | Contents | Current status |
 |---|---|---|
-| Secure Support Foundations | ticket intake, requester verification, privacy, evidence, diagnosis and escalation | Complete |
-| Windows Support and Security | services, updates, Defender, Firewall, BitLocker, logs and baselines | Complete |
-| Linux Support and Security | users, permissions, sudo, SSH, packages, services, firewall and logs | Complete |
-| Networking and Connectivity | TCP/IP, DNS, DHCP, routing, ports, VPN, TLS and firewall diagnosis | Complete |
-| Asset and Software Management | inventories, ownership, lifecycle, approved software and disposal | Complete |
-| Identity and Access Operations | onboarding, role changes, offboarding, MFA and privileged access | Complete |
-| Patch and Vulnerability Management | advisories, exposure, testing, deployment, exceptions and rollback | Complete |
-| Backup and Recovery | design, integrity, restore testing, ransomware readiness and service continuity | Complete with guarded rehearsal |
-| Incident Intake and SOC Escalation | suspicious activity, evidence preservation, safe initial action and handoff | Complete |
-| Cloud and SaaS Support | cloud identity, service status, file sharing, audit records and recovery | Complete |
-| Change and Handover Management | approval, risk, implementation, validation, rollback and communication | Complete with capstone |
-| Diagnostic Tooling | read-only Windows and Linux baseline collectors | Complete for Version 1 |
-| Synthetic Ticket Labs | endpoint, identity, network, update, recovery and security scenarios | Starter library and twelve-lab catalogue complete |
-| Templates | ticket, access, asset, change, patch, restore, escalation and handover records | Complete |
-| Troubleshooting | Git, collectors, network, identity, recovery, patching and incident escalation | Complete |
+| Secure Support Foundations | intake, requester verification, evidence, diagnosis and escalation | Current |
+| Windows Diagnostics | services, Defender, Firewall, BitLocker, updates and logs | Current |
+| Linux Diagnostics | users, sudo, SSH, services, firewall, packages and journals | Current |
+| Networking Decision Trees | TCP/IP, DNS, DHCP, routing, ports, firewall and TLS diagnosis | Current |
+| Asset/Software Management | inventory, ownership, classification and lifecycle | Current |
+| Identity/Access Operations | onboarding, role changes, offboarding, MFA and access review | Current |
+| Patch/Vulnerability Management | advisory review, exposure, prioritisation, change/rollback | Current |
+| Backup/Recovery | integrity, restore testing, RPO/RTO and continuity | Current |
+| Incident Intake/Escalation | suspicious activity recognition, evidence preservation and SOC handoff | Current |
+| Cloud/SaaS Support | cloud access/service troubleshooting foundations | Current |
+| Change/Handover/Capstone | approval, validation, rollback, handover and capstone recovery | Current; capstone assignment-controlled |
+| Read-only Collectors | Windows/Linux baseline collection | Current |
+| Synthetic Support Labs/Tickets | evidence-first diagnosis/recovery practice | Current; later scenarios require release |
+| Templates | tickets, access reviews, change, patch, recovery, escalation and handover | Current |
+| VCC Pod Integration | server-assigned pod/resource, private Access Code, current target manifest and restricted local tunnel | Active programme path |
 
-## Current validation
+## Current operational path
 
-- Bash and PowerShell syntax validation.
-- Synthetic backup archive, checksum and separate-directory restore rehearsal.
-- File-count and manifest comparison after restoration.
-- CI rejection of destructive shortcuts, log-clearing commands, security-control disabling and credential material.
-- Student-facing content contains no real users, credentials, private infrastructure or mentor answer keys.
+The production training topology is five isolated pods. Windows students run `setup-windows.cmd` once and then use the toolkit-local `.\neolabs.cmd` commands. A global `pip install`, PATH edit or manually entered gateway URL is not required for the normal programme workflow.
 
-## Publication rule
+For Week 1 Operation Night Watch, `connect` opens the authorised learner/support surface at `http://localhost:18080` while the current manifest publishes the resource. Google sign-in is intentionally disabled in internship pods. Old/cached endpoints are not continuing authorisation.
 
-Version 1 is student-ready after the release PR passes CI and is merged. Changes to live accounts, services, packages, permissions, firewalls, backups or security controls remain subject to an assigned ticket, explicit approval, validation and rollback.
+See [`PROGRAMME_CURRENT_STATE.md`](PROGRAMME_CURRENT_STATE.md).
+
+## Safety/validation
+
+- Read-only diagnosis is the default.
+- Live changes require the current ticket/assignment, explicit authorisation, original-state evidence, rollback and validation.
+- Student scope is server-authoritative and pod-isolated.
+- CI checks source/syntax and prevents committed credential/private-key/destructive-control material.
+- Student material contains no live Access Codes, mentor ground truth or real cohort evidence.
+
+## Release rule
+
+Later-week material can be staged before release. Presence of a guide/lab does not itself authorise practical activity; the current central assignment and current server-issued resource state are authoritative.

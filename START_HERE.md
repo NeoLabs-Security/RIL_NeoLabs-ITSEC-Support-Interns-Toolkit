@@ -1,44 +1,50 @@
 # Start Here — IT Security Support
 
-This repository is the **NeoLabs × RIL IT Security Support Toolkit**. It contains the Week 1 learning material, read-only diagnostic helpers, templates and the student-side NeoLabs client.
+This repository is the **NeoLabs × RIL IT Security Support Toolkit**. It contains learning material, read-only diagnostic helpers, templates and the student-side NeoLabs client. Official graded work belongs in `RIL_NeoLabs-Intern-Assignments`.
 
-Official weekly tasks and graded submissions belong in the separate **RIL_NeoLabs-Intern-Assignments** repository.
+For current runtime/access behaviour read [`PROGRAMME_CURRENT_STATE.md`](PROGRAMME_CURRENT_STATE.md).
 
 ## Windows — start here
 
-From this repository folder, double-click:
-
-```text
-setup-windows.cmd
-```
-
-The readiness check verifies the workstation prerequisites. Windows interns do **not** need to run `pip install`, edit the Python Scripts PATH or configure the programme gateway manually.
-
-After the check passes, open PowerShell in this toolkit folder and confirm the local launcher works:
+1. Pull the latest toolkit.
+2. Double-click `setup-windows.cmd` once.
+3. Open PowerShell in the toolkit folder and confirm:
 
 ```powershell
 .\neolabs.cmd --help
 ```
 
-Then return to [`README.md`](README.md) and follow the current Week 1 sequence exactly.
+Windows interns do **not** need a global `pip install`, Python Scripts PATH edit or manually configured gateway URL.
 
 ## Before practical work
 
-1. Read `SUPPORT_BOUNDARIES.md`.
-2. Read the current Week 1 launch pack under `publications/`.
-3. Have your assigned pod number and your private onboarding details ready.
-4. Use only the local `neolabs.cmd` launcher shown in the current README.
+1. Read `SUPPORT_BOUNDARIES.md` and the current central assignment.
+2. Read the current Week 1 launch pack when working Operation Night Watch.
+3. Authenticate/confirm the current server-issued assignment:
+
+```powershell
+.\neolabs.cmd login
+.\neolabs.cmd status
+.\neolabs.cmd pod info
+.\neolabs.cmd scope
+.\neolabs.cmd targets
+.\neolabs.cmd connect
+```
+
+For Week 1, keep `connect` running and use the restricted local learner/support surface, normally `http://localhost:18080`. Never substitute a public EC2 IP, old endpoint or another pod.
 
 ## Support workflow
 
-Begin with read-only diagnosis, preserve evidence, document the reported symptom and current state, obtain approval before making changes, validate the result and escalate suspected compromise instead of destroying evidence.
+Begin with read-only diagnosis, preserve evidence, document reported symptom/current state, separate endpoint/network/identity/application causes, obtain approval before changes, record rollback information, validate the result and escalate suspected compromise rather than destroying evidence.
 
 ## Repository boundary
 
-This public toolkit may contain reusable tools, synthetic tickets/labs, templates and NeoLabs-branded learning material. It must not contain Access Codes, session tokens, private keys, real user/device information, unredacted cohort evidence, mentor answer keys or production data.
-
-The `runtime/` folder is ignored because it is regenerated from the server-issued context.
+This public toolkit may contain reusable tools, synthetic tickets/labs, templates and learning material. It must not contain Access Codes, Wazuh/other passwords, session tokens, signed private URLs, private keys/certificates, real user/device information, unredacted cohort evidence, mentor answer keys or production data.
 
 ## Learning order
 
-Follow `LEARNING_PATH.md`. Diagnosis, documentation, escalation and change control come before hardening or automation.
+Follow `LEARNING_PATH.md`. Diagnosis, documentation, escalation and change control come before hardening/automation.
+
+## Stop/escalate
+
+Stop when another pod/resource becomes visible, real personal/production data or credentials appear, a change is outside the assigned ticket/approval, unexpected infrastructure becomes accessible or service stability is affected.
