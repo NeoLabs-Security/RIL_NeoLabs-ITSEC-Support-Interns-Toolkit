@@ -1,5 +1,7 @@
 # NeoLabs Synthetic Support Ticket Library
 
+> **Practice library only.** These are reusable teaching examples, not the live Week 2 Ghost Login queue. During Week 2, retrieve your server-issued pod queue with `.\neolabs.cmd tickets` and use only the cases returned for your assigned pod.
+
 All names, devices, addresses and data in these tickets are fictional. Students should use the secure support lifecycle, collect evidence, decide whether a change is authorized and identify when SOC escalation is required.
 
 ## Ticket 01 — Internal site does not open
