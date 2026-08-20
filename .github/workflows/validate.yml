@@ -18,12 +18,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate NeoLabs Python client and installed command
+      - name: Validate NeoLabs Python clients and installed command
         run: |
-          python -m py_compile tools/neolabs.py
+          python -m py_compile tools/neolabs.py tools/support_tickets.py
+          python -m unittest tests/test_support_tickets.py -v
           python -m pip install --disable-pip-version-check --no-deps -e .
           neolabs --help >/dev/null
           neolabs pod --help >/dev/null
+          python tools/support_tickets.py --help >/dev/null
 
       - name: Validate Bash syntax
         run: |
@@ -33,16 +35,18 @@ jobs:
       - name: Validate PowerShell syntax
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path 'scripts/Collect-SystemBaseline.ps1'),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count -gt 0) {
-            $errors | Format-List | Out-String | Write-Error
-            exit 1
+          foreach ($path in @('scripts/Collect-SystemBaseline.ps1', 'neolabs.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | Format-List | Out-String | Write-Error
+              exit 1
+            }
           }
 
       - name: Rehearse synthetic backup and restore
