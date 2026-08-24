@@ -13,16 +13,25 @@ SPEC.loader.exec_module(MODULE)
 
 
 class SupportLoginPromptTests(unittest.TestCase):
+    def test_client_monkeypatch_does_not_make_prompt_call_itself(self) -> None:
+        real_getpass = MODULE.getpass.getpass
+        try:
+            with mock.patch.object(MODULE, "HIDDEN_INPUT", return_value="NL-AbCdEf0123456789"):
+                MODULE.getpass.getpass = MODULE.prompt_access_code
+                self.assertEqual(MODULE.prompt_access_code(), "NL-AbCdEf0123456789")
+        finally:
+            MODULE.getpass.getpass = real_getpass
+
     def test_valid_code_is_returned_without_echo_logic(self) -> None:
-        with mock.patch.object(MODULE.getpass, "getpass", return_value="NL-AbCdEf0123456789"):
+        with mock.patch.object(MODULE, "HIDDEN_INPUT", return_value="NL-AbCdEf0123456789"):
             self.assertEqual(MODULE.prompt_access_code(), "NL-AbCdEf0123456789")
 
     def test_empty_first_attempt_reprompts(self) -> None:
-        with mock.patch.object(MODULE.getpass, "getpass", side_effect=["", "NL-AbCdEf0123456789"]):
+        with mock.patch.object(MODULE, "HIDDEN_INPUT", side_effect=["", "NL-AbCdEf0123456789"]):
             self.assertEqual(MODULE.prompt_access_code(), "NL-AbCdEf0123456789")
 
     def test_whitespace_or_invalid_entry_is_not_accepted(self) -> None:
-        with mock.patch.object(MODULE.getpass, "getpass", side_effect=["bad code", "still bad code", "also bad code"]):
+        with mock.patch.object(MODULE, "HIDDEN_INPUT", side_effect=["bad code", "still bad code", "also bad code"]):
             with self.assertRaises(SystemExit):
                 MODULE.prompt_access_code()
 
