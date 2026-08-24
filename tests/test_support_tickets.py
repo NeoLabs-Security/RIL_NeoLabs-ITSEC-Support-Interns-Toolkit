@@ -56,8 +56,19 @@ class SupportTicketClientTests(unittest.TestCase):
         self.assertEqual(len(tickets), 1)
         self.assertEqual(tickets[0]["ticket_id"], "W02-POD-01-A")
 
+    def test_accepts_current_pod_synthetic_fixture_reference(self) -> None:
+        self.write_manifest(manifest_for("syn-user-p01-03"))
+        _, tickets = MODULE.read_ticket_resource(refresh=False)
+        self.assertEqual(tickets[0]["account_reference"], "syn-user-p01-03")
+
     def test_rejects_cross_pod_ticket_account_reference(self) -> None:
         self.write_manifest(manifest_for("learner.pod-02.01@synthetic.neolabs.invalid"))
+        with self.assertRaises(SystemExit) as context:
+            MODULE.read_ticket_resource(refresh=False)
+        self.assertIn("assigned-pod isolation check", str(context.exception))
+
+    def test_rejects_cross_pod_synthetic_fixture_reference(self) -> None:
+        self.write_manifest(manifest_for("syn-user-p02-04"))
         with self.assertRaises(SystemExit) as context:
             MODULE.read_ticket_resource(refresh=False)
         self.assertIn("assigned-pod isolation check", str(context.exception))
@@ -75,7 +86,7 @@ class SupportTicketClientTests(unittest.TestCase):
         self.write_manifest(value)
         with self.assertRaises(SystemExit) as context:
             MODULE.read_ticket_resource(refresh=False)
-        self.assertIn("no pod-specific Support tickets", str(context.exception))
+        self.assertIn("missing the current Week 2 Support queue", str(context.exception))
 
 
 if __name__ == "__main__":
