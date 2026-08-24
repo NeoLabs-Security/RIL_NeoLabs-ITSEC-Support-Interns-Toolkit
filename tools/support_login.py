@@ -17,6 +17,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CLIENT = ROOT / "tools" / "neolabs.py"
 ACCESS_CODE_RE = re.compile(r"^[A-Za-z0-9._-]{12,128}$")
+# Keep a private reference to the real terminal reader.  ``main`` replaces
+# ``client.getpass.getpass`` below, and both modules otherwise share Python's
+# singleton ``getpass`` module.  Calling through that shared module here would
+# therefore recurse back into ``prompt_access_code`` forever.
+HIDDEN_INPUT = getpass.getpass
 
 
 def fail(message: str) -> "NoReturn":
@@ -26,7 +31,7 @@ def fail(message: str) -> "NoReturn":
 def prompt_access_code(prompt: str = "NeoLabs Access Code: ") -> str:
     for attempt in range(1, 4):
         try:
-            value = getpass.getpass(prompt).strip()
+            value = HIDDEN_INPUT(prompt).strip()
         except (EOFError, KeyboardInterrupt):
             fail("Access Code entry was cancelled; run `.\\neolabs.cmd login` again")
         if not value:
