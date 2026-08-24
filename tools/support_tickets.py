@@ -18,7 +18,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CLIENT = ROOT / "tools" / "neolabs.py"
 RUNTIME_MANIFEST = ROOT / "runtime" / "access-manifest.json"
+SESSION_FILE = Path.home() / ".neolabs" / "support" / "session.json"
 POD_RE = re.compile(r"^pod-[0-9]{2}$")
+SYNTHETIC_FIXTURE_RE = re.compile(r"^syn-user-p(?P<pod>[0-9]{2})-[A-Za-z0-9._-]+$")
 
 
 def fail(message: str) -> "NoReturn":
@@ -38,7 +40,21 @@ def refresh_manifest() -> None:
     )
     if result.returncode != 0:
         detail = (result.stderr or "").strip()
-        fail(detail.removeprefix("ERROR: ") if detail else "could not refresh the authenticated Support manifest")
+        clean = detail.removeprefix("ERROR: ")
+        if "authentication or pod/track authorization was rejected" in clean:
+            try:
+                SESSION_FILE.unlink()
+            except FileNotFoundError:
+                pass
+            fail("saved NeoLabs session was rejected or is stale; run `.\\neolabs.cmd login` again to create a fresh session")
+        fail(clean if clean else "could not refresh the authenticated Support manifest")
+
+
+def account_matches_pod(account: str, pod: str) -> bool:
+    if pod in account:
+        return True
+    fixture = SYNTHETIC_FIXTURE_RE.fullmatch(account)
+    return bool(fixture and f"pod-{fixture.group('pod')}" == pod)
 
 
 def read_ticket_resource(*, refresh: bool = True) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -60,7 +76,7 @@ def read_ticket_resource(*, refresh: bool = True) -> tuple[dict[str, Any], list[
         fail("the current Support resource manifest is invalid")
     queue = resources.get("support_ticket_queue")
     if queue is None:
-        fail("no pod-specific Support tickets are published for the current scenario yet; confirm Week 2 is active or contact a mentor")
+        fail("the authenticated manifest is missing the current Week 2 Support queue; contact a mentor so the Replay assignment can be republished")
     if not isinstance(queue, list):
         fail("the server returned an invalid Support ticket queue")
     validated: list[dict[str, Any]] = []
@@ -68,7 +84,7 @@ def read_ticket_resource(*, refresh: bool = True) -> tuple[dict[str, Any], list[
         if not isinstance(item, dict):
             fail("the server returned a malformed Support ticket")
         account = item.get("account_reference")
-        if not isinstance(account, str) or pod not in account:
+        if not isinstance(account, str) or not account_matches_pod(account, pod):
             fail("a Support ticket failed the assigned-pod isolation check; stop and contact a mentor")
         validated.append(item)
     return manifest, validated
