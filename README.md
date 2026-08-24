@@ -2,57 +2,79 @@
 
 The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn + Connect + Operate** repository for authorised secure support training through the VCC Security Lab.
 
-> **Current assignment:** Week 01 — Operation Night Watch.  
+> **Current assignment:** Week 02 — Ghost Login / Unfamiliar Login: Identity, Recovery & Escalation.  
 > **Current architecture/status:** [`PROGRAMME_CURRENT_STATE.md`](PROGRAMME_CURRENT_STATE.md)
 
-## Week 1 objective
+## Week 2 objective
 
-Verify normal learner services, practise evidence-preserving troubleshooting and establish a support baseline for later security scenarios.
+Work from synthetic identity-and-access support tickets, verify what the user actually reported, preserve useful evidence, distinguish routine support symptoms from security-relevant signals, escalate to SOC when justified, and perform only explicitly authorised recovery actions.
 
 Read first:
 
-1. `publications/00_NeoLabs_ITSEC_Week_01_Launch_Pack.pdf`
-2. `publications/01_NeoLabs_ITSEC_Week_01_Secure_Support_Foundations.pdf`
-3. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md)
+1. [`publications/NeoLabs_ITSEC_Support_Week_02_Ghost_Login.pdf`](publications/NeoLabs_ITSEC_Support_Week_02_Ghost_Login.pdf)
+2. [`SUPPORT_BOUNDARIES.md`](SUPPORT_BOUNDARIES.md)
+3. [`docs/06-identity-access-operations/`](docs/06-identity-access-operations/)
+4. [`docs/10-incident-intake-escalation/`](docs/10-incident-intake-escalation/)
 
-## Windows — current startup
+Week 1 materials remain useful as the secure-support baseline, but the current scenario and ticket queue are server-issued for Week 2.
 
-From the latest toolkit checkout, double-click `setup-windows.cmd` once. Then open PowerShell in this toolkit folder and use:
+## Windows — run from the toolkit folder
+
+From the latest toolkit checkout, double-click `setup-windows.cmd` once. Then open PowerShell **in the root of this toolkit folder — the folder that contains `neolabs.cmd`**.
+
+You do not need to enter the `tools` folder and you do not need a global `neolabs` installation. The launcher resolves its own scripts relative to the toolkit directory.
+
+Use:
 
 ```powershell
 .\neolabs.cmd login
 .\neolabs.cmd status
 .\neolabs.cmd pod info
 .\neolabs.cmd scope
+.\neolabs.cmd tickets
+```
+
+For live resources when the current lab state permits them:
+
+```powershell
 .\neolabs.cmd targets
 .\neolabs.cmd connect
 ```
 
 Windows interns do **not** need a global `pip install`, Python Scripts PATH changes or a manually entered gateway URL. Do not use bare `neolabs` on Windows.
 
-`login` asks only for the assigned pod number + private NeoLabs Access Code. The server controls pod/track/current support resources.
+`login` asks for the assigned pod number + private NeoLabs Access Code. The server controls the pod, track, current scenario and Support resources.
 
-## Week 1 support surface
+### Week 2 ticket queue
 
-During the approved interactive window, `connect` opens the restricted pod-isolated learner/support surface, normally:
+After a successful NeoLabs login, run:
 
-```text
-http://localhost:18080
+```powershell
+.\neolabs.cmd tickets
 ```
 
-Keep the connection terminal open. The internship learner app uses its normal email/password form; Google sign-in is intentionally disabled in internship pods.
+The command refreshes the authenticated server-issued manifest and displays only the **current pod-scoped IT Security Support tickets** assigned to that intern. There is no student-side pod selector.
 
-Confirm current `targets` before work. Never substitute the public EC2 address, an old endpoint or another pod. If no current support resource is published, wait for the approved window.
+Useful options:
 
-## Operation Night Watch workflow
+```powershell
+.\neolabs.cmd tickets --ticket W02-POD-01-A
+.\neolabs.cmd tickets --json
+```
 
-1. Verify the current server-issued support endpoint/resource.
-2. Verify the normal learner workflow and approved functions.
-3. Work through the supplied synthetic support/onboarding ticket(s).
-4. Separate browser/application symptoms from device, DNS, network and account symptoms.
-5. Preserve non-sensitive evidence before proposing changes.
-6. Record symptom, evidence, diagnosis, action/recommendation, validation and escalation status.
-7. Write one short knowledge-base article for a common Week 1 issue.
+If the toolkit reports that no Support tickets are published yet, do not substitute old Week 1 resources or another pod. Confirm the current release state or contact a mentor.
+
+## Week 2 Support workflow
+
+1. Run `.\neolabs.cmd status` and confirm the current server-issued scenario/pod.
+2. Run `.\neolabs.cmd tickets` and read the assigned synthetic queue.
+3. Verify the reporter, account reference, reported time window, device/browser context and current access state.
+4. Preserve relevant non-sensitive evidence before proposing changes.
+5. Separate symptom, evidence, hypothesis and conclusion.
+6. Escalate to SOC when the ticket indicates unexplained authentication or a security-relevant account/session inconsistency.
+7. Send SOC the account reference, reported window and useful context — **not a pre-decided conclusion**.
+8. Perform recovery only when the ticket/task explicitly authorises it, then validate the result.
+9. Record the case outcome and escalation status in the required assignment deliverable.
 
 Official graded submissions belong in `NeoLabs-Security/RIL_NeoLabs-Intern-Assignments`, not this toolkit.
 
@@ -66,12 +88,12 @@ Read-only diagnosis is the default. Do not change accounts, permissions, firewal
 README.md                   ← current start page
 PROGRAMME_CURRENT_STATE.md  ← current runtime/access reference
 START_HERE.md               ← detailed onboarding
-SUPPORT_BOUNDARIES.md        ← mandatory authority/change boundary
+SUPPORT_BOUNDARIES.md       ← mandatory authority/change boundary
 setup-windows.cmd           ← Windows readiness check
 neolabs.cmd                 ← Windows toolkit-local launcher
-docs/week-01/               ← current Week 1 sources
+tools/neolabs.py            ← authenticated access client
+tools/support_tickets.py    ← current pod-scoped ticket viewer
 publications/               ← branded student PDFs
-tools/neolabs.py            ← underlying access client
 scripts/                    ← read-only diagnostics
 templates/                  ← support/evidence/handover forms
 labs/                       ← safe synthetic practice
