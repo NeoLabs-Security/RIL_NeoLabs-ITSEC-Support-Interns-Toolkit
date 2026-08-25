@@ -18,6 +18,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CLIENT = ROOT / "tools" / "neolabs.py"
 ACCESS_CODE_RE = re.compile(r"^[A-Za-z0-9._-]{12,128}$")
 
+# Capture the real console prompt before temporarily replacing the imported
+# client's getpass function. Python modules are shared objects; without this
+# stable reference, replacing client.getpass.getpass also replaces this
+# module's getpass.getpass and prompt_access_code recursively calls itself.
+_SYSTEM_GETPASS = getpass.getpass
+
 
 def fail(message: str) -> "NoReturn":
     raise SystemExit(f"ERROR: {message}")
@@ -26,7 +32,7 @@ def fail(message: str) -> "NoReturn":
 def prompt_access_code(prompt: str = "NeoLabs Access Code: ") -> str:
     for attempt in range(1, 4):
         try:
-            value = getpass.getpass(prompt).strip()
+            value = _SYSTEM_GETPASS(prompt).strip()
         except (EOFError, KeyboardInterrupt):
             fail("Access Code entry was cancelled; run `.\\neolabs.cmd login` again")
         if not value:
@@ -60,8 +66,12 @@ def parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = parser().parse_args()
     client = load_client()
+    original_getpass = client.getpass.getpass
     client.getpass.getpass = prompt_access_code
-    client.login(args)
+    try:
+        client.login(args)
+    finally:
+        client.getpass.getpass = original_getpass
     return 0
 
 
