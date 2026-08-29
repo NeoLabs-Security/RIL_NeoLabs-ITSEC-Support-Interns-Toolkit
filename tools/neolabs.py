@@ -25,6 +25,10 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
+try:
+    from .release_contract import validate_manifest
+except ImportError:
+    from release_contract import validate_manifest
 
 TRACK = "SUPPORT"
 POD_RE = re.compile(r"^pod-[0-9]{2}$")
@@ -168,7 +172,10 @@ def manifest_from(value: dict[str, Any]) -> dict[str, Any]:
         fail("server returned an invalid pod identifier")
     if not isinstance(manifest.get("resources"), dict):
         fail("server returned invalid track resources")
-    return manifest
+    try:
+        return validate_manifest(manifest, TRACK)
+    except ValueError as exc:
+        fail(str(exc))
 
 
 def save_runtime(manifest: dict[str, Any]) -> None:
