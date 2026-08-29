@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 PROTOCOL_VERSION = "2.0"
 TRACKS = {"SOC", "PENTEST", "SUPPORT"}
+RESOURCE_TYPES={"SOC":"soc_enrolment.v1","PENTEST":"pentest_targets.v1","SUPPORT":"support_ticket_queue.v1"}
 def validate_manifest(manifest: dict[str, Any], expected_track: str) -> dict[str, Any]:
     required = ("deployment_id", "deployment_channel", "scenario_id", "scenario_release", "release_generation", "student_ready", "lab_state", "runtime_mode", "pod_id", "track", "assignment_id", "resources")
     missing=[key for key in required if key not in manifest]
@@ -12,6 +13,7 @@ def validate_manifest(manifest: dict[str, Any], expected_track: str) -> dict[str
     if manifest["student_ready"] is not True or manifest["lab_state"] != "STUDENT_READY": raise ValueError("deployment is not STUDENT_READY")
     if not isinstance(manifest["release_generation"],str) or not manifest["release_generation"]: raise ValueError("manifest release generation is invalid")
     if not isinstance(manifest["resources"],dict): raise ValueError("manifest resources are invalid")
+    if not compatible_resource(manifest["resources"],RESOURCE_TYPES[expected_track]):raise ValueError("manifest resource contract is unsupported")
     return manifest
 def generation_changed(previous, current):
     return bool(previous) and (previous.get("deployment_id") != current.get("deployment_id") or previous.get("release_generation") != current.get("release_generation"))

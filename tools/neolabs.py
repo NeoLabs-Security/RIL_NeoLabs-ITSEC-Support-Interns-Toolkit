@@ -26,9 +26,11 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 try:
-    from .release_contract import validate_manifest
+    from .release_contract import generation_changed, validate_manifest
+    from .discovery import resolve_gateway
 except ImportError:
-    from release_contract import validate_manifest
+    from release_contract import generation_changed, validate_manifest
+    from discovery import resolve_gateway
 
 TRACK = "SUPPORT"
 POD_RE = re.compile(r"^pod-[0-9]{2}$")
@@ -184,9 +186,17 @@ def save_runtime(manifest: dict[str, Any]) -> None:
 
 
 def refresh(session: dict[str, Any]) -> dict[str, Any]:
-    base_url = validate_base_url(str(session.get("base_url", "")))
+    previous_manifest = session.get("manifest") if isinstance(session.get("manifest"), dict) else None
+    try: base_url, discovery_url = resolve_gateway(str(session.get("base_url", "")), HOME_STATE, str(session.get("deployment_channel", "ril-current")), session.get("discovery_url"))
+    except ValueError as exc: fail(str(exc))
+    base_url=validate_base_url(base_url); session["base_url"]=base_url
+    if discovery_url: session["discovery_url"]=discovery_url
     response = request_json(base_url, "/api/v1/lab-access/manifest", token=str(session["session_token"]))
     manifest = manifest_from(response)
+    if generation_changed(previous_manifest, manifest):
+        RUNTIME_MANIFEST.unlink(missing_ok=True)
+        shutil.rmtree(REPLAY_DIR, ignore_errors=True)
+        print(f"[NeoLabs] Release generation changed to {manifest['release_generation']}; stale replay and endpoint caches were invalidated.")
     session["manifest"] = manifest
     if isinstance(response.get("expires_at"), str):
         session["expires_at"] = response["expires_at"]
@@ -196,7 +206,9 @@ def refresh(session: dict[str, Any]) -> dict[str, Any]:
 
 
 def login(args: argparse.Namespace) -> None:
-    base_url = validate_base_url(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", ""))
+    try: base_url, discovery_url = resolve_gateway(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", ""), HOME_STATE)
+    except ValueError as exc: fail(str(exc))
+    base_url=validate_base_url(base_url)
     pod = normalize_pod(args.pod or input("Pod number: "))
     access_code = getpass.getpass("NeoLabs Access Code: ").strip()
     if len(access_code) < 12 or any(ch.isspace() for ch in access_code):
@@ -206,7 +218,7 @@ def login(args: argparse.Namespace) -> None:
     if not isinstance(token, str) or not token:
         fail("server did not return a lab session")
     manifest = manifest_from(response)
-    state = {"base_url": base_url, "session_token": token, "expires_at": response.get("expires_at"), "manifest": manifest}
+    state = {"base_url": base_url, "discovery_url": discovery_url, "deployment_channel": manifest["deployment_channel"], "session_token": token, "expires_at": response.get("expires_at"), "manifest": manifest}
     atomic_write(SESSION_FILE, json.dumps(state, indent=2, sort_keys=True) + "\n")
     save_runtime(manifest)
     print("✓ Authentication successful")
