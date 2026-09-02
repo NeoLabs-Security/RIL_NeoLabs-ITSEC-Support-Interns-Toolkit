@@ -19,6 +19,8 @@ def manifest_for(account: str = "learner.pod-01.01@synthetic.neolabs.invalid") -
         "pod_id": "pod-01",
         "scenario_id": "w02-ghost-login",
         "resources": {
+            "resource_type": "support_ticket_queue.v1",
+            "schema_version": 1,
             "queue_run_id": "abc123def456",
             "student_notice": "Synthetic ticket queue",
             "support_ticket_queue": [
@@ -86,7 +88,7 @@ class SupportTicketClientTests(unittest.TestCase):
         self.write_manifest(value)
         with self.assertRaises(SystemExit) as context:
             MODULE.read_ticket_resource(refresh=False)
-        self.assertIn("missing the current Week 2 Support queue", str(context.exception))
+        self.assertIn("missing the current versioned Support queue", str(context.exception))
 
 
 if __name__ == "__main__":

@@ -76,7 +76,7 @@ def read_ticket_resource(*, refresh: bool = True) -> tuple[dict[str, Any], list[
         fail("the current Support resource manifest is invalid")
     queue = resources.get("support_ticket_queue")
     if queue is None:
-        fail("the authenticated manifest is missing the current Week 2 Support queue; contact a mentor so the Replay assignment can be republished")
+        fail("the authenticated manifest is missing the current versioned Support queue; contact a mentor so the assignment can be republished")
     if not isinstance(queue, list):
         fail("the server returned an invalid Support ticket queue")
     validated: list[dict[str, Any]] = []
@@ -145,7 +145,7 @@ def main() -> int:
         print(json.dumps({"pod_id": pod, "scenario_id": manifest.get("scenario_id"), "tickets": tickets}, indent=2, sort_keys=True))
         return 0
 
-    print("NEOLABS SUPPORT DESK — WEEK 02")
+    print("NEOLABS SUPPORT DESK — CURRENT ASSIGNMENT")
     print(f"Assigned pod: {pod}")
     print(f"Scenario:     {manifest.get('scenario_id') or resources.get('scenario_id') or 'not published'}")
     print(f"Queue run:    {resources.get('queue_run_id', 'not published')}")
