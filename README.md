@@ -64,6 +64,18 @@ Useful options:
 
 If the toolkit reports that no Support tickets are published yet, do not substitute old Week 1 resources or another pod. Confirm the current release state or contact a mentor.
 
+### Mentor-authorised Offline Fallback
+
+Use this only when a mentor supplies a temporary Offline Fallback API URL and a separate offline Access Code. It does not replace or reconfigure the normal VCC service.
+
+```powershell
+.\neolabs.cmd login --base-url https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com
+.\neolabs.cmd tickets
+.\neolabs.cmd evidence
+```
+
+The fallback contains synthetic, pod-scoped Week 2 tickets and evidence only. Do not test public systems or perform real account changes. Run `.\neolabs.cmd disconnect` before returning to the normal VCC login.
+
 ## Week 2 Support workflow
 
 1. Run `.\neolabs.cmd status` and confirm the current server-issued scenario/pod.
