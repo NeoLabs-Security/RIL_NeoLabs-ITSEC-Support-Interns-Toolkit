@@ -17,6 +17,7 @@
 | Synthetic Support Labs/Tickets | evidence-first diagnosis/recovery practice | Current; later scenarios require release |
 | Templates | tickets, access reviews, change, patch, recovery, escalation and handover | Current |
 | VCC Pod Integration | server-assigned pod/resource, private Access Code, current target manifest and restricted local tunnel | Active programme path |
+| Week 3 Credential Storm — Blue Response Pack | no-pod arena contract, containment/recovery runbook, response ledger, change record and offline validator | Staged; usable only when the central assignment opens `w03-credential-storm` |
 
 ## Current operational path
 

@@ -37,6 +37,10 @@ For Week 1, keep `connect` running and use the restricted local learner/support 
 
 Begin with read-only diagnosis, preserve evidence, document reported symptom/current state, separate endpoint/network/identity/application causes, obtain approval before changes, record rollback information, validate the result and escalate suspected compromise rather than destroying evidence.
 
+## Week 3 red-versus-blue arena
+
+When the central assignment opens `w03-credential-storm`, Blue-team responders start with [`arena/week-03/START_HERE.md`](arena/week-03/START_HERE.md). This temporary week has no pods. The IT Security Support toolkit owns controlled account/firewall response after a SOC evidence handoff; mentor-only credentials, AWS identifiers and server secrets are never stored here.
+
 ## Repository boundary
 
 This public toolkit may contain reusable tools, synthetic tickets/labs, templates and learning material. It must not contain Access Codes, Wazuh/other passwords, session tokens, signed private URLs, private keys/certificates, real user/device information, unredacted cohort evidence, mentor answer keys or production data.

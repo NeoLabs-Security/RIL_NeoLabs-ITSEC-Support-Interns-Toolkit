@@ -1,0 +1,1 @@
+change_id,account_id,soc_alert_or_event_id,requested_time_utc,approved_by,action,original_state,completed_time_utc,response_event_or_rule_id,validation_result,rollback_owner,responder,notes
