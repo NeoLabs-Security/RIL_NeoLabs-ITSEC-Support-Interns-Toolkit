@@ -379,6 +379,10 @@ def disconnect(_: argparse.Namespace) -> None:
 
 
 def parser() -> argparse.ArgumentParser:
+    try:
+        from . import support_tickets
+    except ImportError:
+        import support_tickets
     p = argparse.ArgumentParser(description="NeoLabs IT Security Support pod access client")
     sub = p.add_subparsers(dest="command", required=True)
     x = sub.add_parser("login"); x.add_argument("--pod"); x.add_argument("--base-url", default=None); x.set_defaults(func=login)
@@ -390,6 +394,12 @@ def parser() -> argparse.ArgumentParser:
     x = sub.add_parser("evidence"); x.set_defaults(func=evidence)
     x = sub.add_parser("pod"); nested = x.add_subparsers(dest="pod_command", required=True); y = nested.add_parser("info"); y.set_defaults(func=pod_info)
     x = sub.add_parser("disconnect"); x.set_defaults(func=disconnect)
+    x = sub.add_parser('tickets', help='Current server-issued support tickets')
+    x.add_argument('--ticket'); x.add_argument('--json', action='store_true')
+    x.set_defaults(func=support_tickets.run, no_refresh=False)
+    x = sub.add_parser('entitlements', help='Read-only course evidence for a currently assigned ticket')
+    x.add_argument('--ticket', required=True)
+    x.set_defaults(func=support_tickets.course_entitlements)
     return p
 
 

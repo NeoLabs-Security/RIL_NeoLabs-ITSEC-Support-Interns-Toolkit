@@ -1,5 +1,17 @@
 # NeoLabs IT Security Support Intern Toolkit
 
+## Week 4 entry point (staged)
+
+For an assigned `w04-broken-gate` release, use the
+[course access triage guide](docs/week-04/course-access.md). From this repository
+root on Linux, run `bash neolabs login`, `bash neolabs status`, then
+`bash neolabs tickets`. Use a ticket ID from your queue with
+`bash neolabs tickets --ticket <published-ticket-id>` and
+`bash neolabs entitlements --ticket <published-ticket-id>`.
+Windows uses `.\neolabs.cmd` with the same arguments. Evidence is read-only;
+corrections require the approved mentor/operator workflow. Stop if tickets or
+course evidence are not published.
+
 The **NeoLabs × RIL IT Security Support Toolkit** is the student-side **Learn + Connect + Operate** repository for authorised secure support training through the VCC Security Lab.
 
 > **Current assignment:** Week 02 — Ghost Login / Unfamiliar Login: Identity, Recovery & Escalation.  

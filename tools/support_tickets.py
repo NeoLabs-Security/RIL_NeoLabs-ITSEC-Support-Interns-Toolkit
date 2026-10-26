@@ -86,6 +86,17 @@ def read_ticket_resource(*, refresh: bool = True) -> tuple[dict[str, Any], list[
         account = item.get("account_reference")
         if not isinstance(account, str) or not account_matches_pod(account, pod):
             fail("a Support ticket failed the assigned-pod isolation check; stop and contact a mentor")
+        if manifest.get('scenario_id') == 'w04-broken-gate':
+            safe_fields = ('ticket_id', 'queue_position', 'severity', 'queue', 'reporter', 'account_reference',
+                           'reported_time_hint', 'user_remembers_login', 'current_access', 'user_statement',
+                           'support_action_authority', 'soc_escalation_guidance')
+            safe = {key: item[key] for key in safe_fields if key in item}
+            device = item.get('device_context')
+            if isinstance(device, dict):
+                safe['device_context'] = {key: device[key] for key in ('asset', 'os', 'browser') if key in device}
+            if 'course_access' in item:
+                safe['course_access'] = validate_course_evidence(manifest, item)
+            item = safe
         validated.append(item)
     return manifest, validated
 
@@ -134,6 +145,10 @@ def parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = parser().parse_args()
+    return run(args)
+
+
+def run(args: argparse.Namespace) -> int:
     manifest, tickets = read_ticket_resource(refresh=not args.no_refresh)
     pod = str(manifest["pod_id"])
     resources = manifest["resources"]
@@ -158,6 +173,52 @@ def main() -> int:
     print("\nWORKFLOW: verify → record → preserve → triage → escalate when justified → recover only with authority → validate")
     print("Use the account reference + reported window + user/device context in your SOC escalation; do not tell SOC what conclusion to reach.")
     return 0
+
+
+def course_entitlements(args: argparse.Namespace) -> None:
+    """Display only a current ticket's server-issued course evidence projection."""
+    manifest, tickets = read_ticket_resource(refresh=True)
+    if manifest.get('scenario_id') != 'w04-broken-gate' or not re.fullmatch(r'pod-0[1-5]', manifest['pod_id']):
+        fail('no current Week 4 course evidence is published for this assigned pod')
+    ticket = next((item for item in tickets if item.get('ticket_id') == args.ticket), None)
+    if ticket is None:
+        fail('that ticket ID is not in your current server-issued queue')
+    course = validate_course_evidence(manifest, ticket)
+    print(json.dumps({'scenario_id': 'w04-broken-gate', 'pod_id': manifest['pod_id'],
+                      'ticket_id': ticket['ticket_id'], 'account_reference': ticket['account_reference'],
+                      'course_access': course,
+                      'change_mode': 'proposed_or_simulated_only'}, indent=2, sort_keys=True))
+
+
+def validate_course_evidence(manifest: dict[str, Any], ticket: dict[str, Any]) -> dict[str, Any]:
+    course = ticket.get('course_access')
+    if not isinstance(course, dict) or course.get('contract_version') != '1.0.0':
+        fail('no approved course evidence is published for this ticket; do not infer course permissions from platform access')
+    pod = manifest.get('pod_id')
+    if (course.get('pod_id') != pod or course.get('scenario_id') != 'w04-broken-gate'
+            or course.get('account_reference') != ticket.get('account_reference') or course.get('read_only') is not True):
+        fail('course evidence failed the ticket/pod/scope check; stop and contact a mentor')
+    if (course.get('enrolment_status') not in {'ACTIVE', 'SUSPENDED', 'REVOKED', 'NONE'}
+            or course.get('course_role') not in {'LEARNER', 'INSTRUCTOR', 'NONE'}
+            or not re.fullmatch(r'[A-Za-z0-9_-]{1,160}', str(course.get('course_id', '')))):
+        fail('the server-issued course evidence is invalid')
+    from datetime import datetime
+    try:
+        observed = datetime.fromisoformat(course['observed_at'].replace('Z', '+00:00'))
+        if observed.tzinfo is None: raise ValueError('timezone required')
+        for field in ('enrolment_starts_at', 'enrolment_ends_at'):
+            if course.get(field) is not None:
+                value = datetime.fromisoformat(course[field].replace('Z', '+00:00'))
+                if value.tzinfo is None: raise ValueError('timezone required')
+    except (KeyError, AttributeError, TypeError, ValueError):
+        fail('course evidence is missing a trustworthy observation timestamp')
+    # Explicit allowlist: mentor-only policy answers, secrets, arbitrary comments
+    # and raw internal role/approval objects never enter this output.
+    projected = {key: course[key] for key in ('contract_version', 'pod_id', 'scenario_id', 'account_reference',
+                                             'course_id', 'enrolment_status', 'course_role', 'read_only', 'observed_at')}
+    for field in ('enrolment_starts_at', 'enrolment_ends_at'):
+        projected[field] = course.get(field)
+    return projected
 
 
 if __name__ == "__main__":

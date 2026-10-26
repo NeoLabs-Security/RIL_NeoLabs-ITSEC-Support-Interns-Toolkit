@@ -22,6 +22,9 @@ jobs:
         run: |
           python -m py_compile tools/neolabs.py tools/support_tickets.py
           python -m unittest tests/test_support_tickets.py -v
+          python -m unittest tests/test_week04_course_evidence.py -v
+          bash -n neolabs
+          bash neolabs entitlements --help
           python -m pip install --disable-pip-version-check --no-deps -e .
           neolabs --help >/dev/null
           neolabs pod --help >/dev/null
