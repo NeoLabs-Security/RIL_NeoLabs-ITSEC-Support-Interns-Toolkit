@@ -2,6 +2,7 @@
 
 | Material | Contents | Current status |
 |---|---|---|
+| Week 4 course access investigation | `docs/week-04/course-access.md`, existing ticket client plus read-only `entitlements --ticket`; Linux root launcher; root start/task links audited | Staged; `w04-broken-gate`, contract 1.0.0, reviewed 2026-10-26; permission changes proposed/simulated only |
 | Secure Support Foundations | intake, requester verification, evidence, diagnosis and escalation | Current |
 | Windows Diagnostics | services, Defender, Firewall, BitLocker, updates and logs | Current |
 | Linux Diagnostics | users, sudo, SSH, services, firewall, packages and journals | Current |
