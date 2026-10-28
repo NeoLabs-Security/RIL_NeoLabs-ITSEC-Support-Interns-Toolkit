@@ -88,7 +88,7 @@ def validate_base_url(value: str) -> str:
 
 def ssl_context() -> ssl.SSLContext:
     context = ssl.create_default_context()
-    ca_file = os.environ.get("NEOLABS_CA_FILE", "").strip()
+    ca_file = (os.environ.get("NEOLABS_CA_FILE", "").strip() or str(Path(__file__).resolve().parents[1] / "certs" / "neolabs-w04-ca.crt"))
     if ca_file:
         path = Path(ca_file).expanduser()
         if not path.is_file():
@@ -206,7 +206,7 @@ def refresh(session: dict[str, Any]) -> dict[str, Any]:
 
 
 def login(args: argparse.Namespace) -> None:
-    try: base_url, discovery_url = resolve_gateway(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", ""), HOME_STATE)
+    try: base_url, discovery_url = resolve_gateway(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", "https://184.198.87.161:18443"), HOME_STATE)
     except ValueError as exc: fail(str(exc))
     base_url=validate_base_url(base_url)
     pod = normalize_pod(args.pod or input("Pod number: "))
