@@ -1,5 +1,8 @@
 # NeoLabs IT Security Support Intern Toolkit
 
+**Week 4 student quickstart:** [Support ticket/entitlements commands, case triage and GitHub submission](docs/week-04/STUDENT_RUNBOOK.md). The Support track does not require Pentest student-profile credentials.
+
+
 ## Week 4 entry point (staged)
 
 For an assigned `w04-broken-gate` release, use the
