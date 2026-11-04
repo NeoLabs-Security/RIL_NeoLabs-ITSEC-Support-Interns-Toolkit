@@ -191,8 +191,8 @@ def refresh(session: dict[str, Any]) -> dict[str, Any]:
     # configured, known VCC endpoint, preserving authenticated session and pod scope.
     # TLS is validated when refresh requests the new endpoint; persist on success.
     previous_endpoint = str(session.get("base_url", "")).rstrip("/")
-    if previous_endpoint == "https://16.16.110.32:18443" and not session.get("discovery_url"):
-        session["base_url"] = "https://13.53.110.120:18443"
+    if previous_endpoint in {"https://16.16.110.32:18443", "https://13.53.110.120:18443"} and not session.get("discovery_url"):
+        session["base_url"] = "https://16.192.188.181:18443"
     try: base_url, discovery_url = resolve_gateway(str(session.get("base_url", "")), HOME_STATE, str(session.get("deployment_channel", "ril-current")), session.get("discovery_url"))
     except ValueError as exc: fail(str(exc))
     base_url=validate_base_url(base_url); session["base_url"]=base_url
@@ -212,7 +212,7 @@ def refresh(session: dict[str, Any]) -> dict[str, Any]:
 
 
 def login(args: argparse.Namespace) -> None:
-    try: base_url, discovery_url = resolve_gateway(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", "https://13.53.110.120:18443"), HOME_STATE)
+    try: base_url, discovery_url = resolve_gateway(args.base_url or os.environ.get("NEOLABS_LAB_BASE_URL", "https://16.192.188.181:18443"), HOME_STATE)
     except ValueError as exc: fail(str(exc))
     base_url=validate_base_url(base_url)
     pod = normalize_pod(args.pod or input("Pod number: "))
