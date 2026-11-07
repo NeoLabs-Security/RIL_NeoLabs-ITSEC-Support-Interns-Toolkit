@@ -41,6 +41,27 @@ Suggested rehearsal: the Pentest side first uploads the **approved harmless misl
 
 A quarantined upload cannot be reactivated by this student workflow. Repeated quarantine returns an already-quarantined status, not a new containment event; the UI blocks repeating a confirmed action.
 
+## Support SSH key enrollment (operator-controlled, before student release)
+
+The Week 05 Support student uses a **distinct** SSH key, not the old Week 04 password/SSH identity. The student can create it on the **machine that will own the localhost SSH tunnel**:
+
+```bash
+bash neolabs incident keygen
+```
+
+This generates `~/.neolabs/support/w05-tunnel-ed25519` (private, permission 0600) and displays only its `.pub` contents. Students transmit the **public** key privately to the mentor; nobody should send private keys or Access Codes in Slack/GitHub.
+
+The mentor must verify the exact student-to-pod-to-track broker assignment, choose the approved `nlw05sup_<12hex>` SSH username, place the public key into a restricted local file on the **separate W05 server**, and run:
+
+```bash
+sudo bash scripts/w05-configure-restricted-support-ssh.sh \
+  pod-01 nlw05sup_012345abcdef /absolute/path/to/approved-support-key.pub
+```
+
+The example username is illustrative. Substitute the **actual published identity**, not an arbitrary guessed value. The script first verifies that the running localhost gateway is specifically W05, then installs a no-shell, publickey-only SSH identity permitted to forward solely to `127.0.0.1:18600`. Restrict EC2 SSH ingress to approved student source IPs. Confirm SSH host fingerprints out-of-band before students connect.
+
+This operation only creates a restricted SSH transport identity; it does **not** publish a W05 broker manifest, change the active W04 release, issue Access Codes, or authorize students on its own. Never perform it on the existing W04 server.
+
 ## Student path (only AFTER central broker publishes Week 05)
 
 ```bash
