@@ -243,6 +243,50 @@ def connect(_: argparse.Namespace) -> None:
         return
     resources = manifest["resources"]
     tunnel = resources.get("tunnel")
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        # Unlike Week 04, Week 05 must NEVER fall back to password-SSH.
+        # The mentor must register this exact key on the separate W05 host;
+        # the authoritative broker must then publish the scoped tunnel.
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+        ssh = shutil.which("ssh")
+        identity = HOME_STATE / "w05-tunnel-ed25519"
+        if not ssh or not identity.is_file() or identity.is_symlink() or identity.stat().st_mode & 0o077:
+            fail("W05 Support requires an authorized, private SSH tunnel key at ~/.neolabs/support/w05-tunnel-ed25519 (mode 0600); contact the mentor for enrolment")
+        if not isinstance(tunnel, dict):
+            fail("W05 Support tunnel is not published")
+        host = str(tunnel.get("host") or "")
+        username = str(tunnel.get("username") or "")
+        remote_host = str(tunnel.get("remote_host") or "")
+        try:
+            port = int(tunnel.get("port") or 22)
+            local_port = int(tunnel.get("local_port"))
+            remote_port = int(tunnel.get("remote_port"))
+        except (TypeError, ValueError):
+            fail("Invalid W05 Support SSH tunnel ports")
+        if not re.fullmatch(r"[A-Za-z0-9.-]{1,253}", host) or not re.fullmatch(r"[A-Za-z0-9_]{1,32}", username) or not 1 <= port <= 65535 or local_port != 18080 or remote_port != 18600 or remote_host != "127.0.0.1":
+            fail("W05 Support tunnel publication does not match the approved restricted endpoint")
+        print(f"Starting approved W05 Support tunnel for {manifest['pod_id']} on localhost:18080")
+        print("Keep this terminal running; use another terminal for neolabs incident dashboard.")
+        command = [ssh, "-i", str(identity), "-o", "IdentitiesOnly=yes",
+                   "-o", "BatchMode=yes", "-o", "PasswordAuthentication=no",
+                   "-o", "ExitOnForwardFailure=yes", "-o", "StrictHostKeyChecking=yes",
+                   "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=3",
+                   "-N", "-L", f"127.0.0.1:{local_port}:{remote_host}:{remote_port}",
+                   "-p", str(port), f"{username}@{host}"]
+        try:
+            subprocess.run(command, check=True)
+        except KeyboardInterrupt:
+            print("W05 Support SSH tunnel closed")
+        except subprocess.CalledProcessError as exc:
+            fail(f"W05 Support SSH tunnel exited ({exc.returncode}); verify server key, account and approved private identity")
+        return
     if isinstance(tunnel, dict) and tunnel.get("transport") == "ssh-local-forward":
         ssh = shutil.which("ssh")
         if not ssh:
@@ -406,6 +450,16 @@ def parser() -> argparse.ArgumentParser:
     x = sub.add_parser('entitlements', help='Read-only course evidence for a currently assigned ticket')
     x.add_argument('--ticket', required=True)
     x.set_defaults(func=support_tickets.course_entitlements)
+    x = sub.add_parser('incident', help='Week 05 authorized Support incident response tools')
+    nested = x.add_subparsers(dest='incident_command', required=True)
+    y = nested.add_parser('dashboard', help='Open assigned-pod web incident desk through localhost tunnel')
+    y.add_argument('--mentor-preview', action='store_true', help='Use separate Week 05 mentor-only preview on port 18600')
+    y.add_argument('--no-open', action='store_true', help='Print private localhost URL rather than starting a browser')
+    try:
+        from .week05_support import dashboard as w05_support_dashboard
+    except ImportError:
+        from week05_support import dashboard as w05_support_dashboard
+    y.set_defaults(func=w05_support_dashboard)
     return p
 
 
