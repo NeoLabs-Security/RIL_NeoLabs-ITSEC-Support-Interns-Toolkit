@@ -237,7 +237,20 @@ def login(args: argparse.Namespace) -> None:
 def connect(_: argparse.Namespace) -> None:
     manifest = refresh(read_session())
     state = str(manifest.get("lab_state") or "LIVE")
-    if state not in INTERACTIVE_STATES:
+    # W05 STUDENT_READY is a valid live-window state ONLY when the current
+    # authoritative broker also publishes the exact W05 Support scope.
+    # This check is before the legacy state gate to avoid silently skipping
+    # a valid Week 05 localhost SSH connection.
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+    elif state not in INTERACTIVE_STATES:
         print(f"NeoLabs state: {state}. No interactive Support endpoint is required/available in this window.")
         print("Use `neolabs replay` for archived telemetry and `neolabs evidence` for approved ticket/cloud/endpoint evidence.")
         return
