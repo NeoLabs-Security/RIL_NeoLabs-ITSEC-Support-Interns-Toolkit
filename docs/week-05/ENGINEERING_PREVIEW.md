@@ -1,27 +1,64 @@
-# Week 05 — IT Security & Support standalone test guide (draft)
+# Week 05 — IT Security & Support: Operation Poisoned Upload
 
-**Authorized target:** mentor's separate Week 05 test server through localhost-only gateway (TCP 18600). Use only the mentor-issued W05 Support Access Code for your assigned pod.
+**Status:** mentor-only test integration, not an announcement of cohort publication. Five standalone W05 upload pods, the central SOC broker, and the central Wazuh dashboard are separate authorized components. Do not share local mentor preview codes with students.
 
-The preferred client obtains a short-lived server-verified session and does not ask you to pick a pod locally:
+## Your assignment
+
+Support receives a synthetic suspicious-upload incident from SOC, reviews pod-scoped upload metadata and original security event IDs, confirms containment authorization, quarantines the exact artifact, and submits a sanitized incident/ticket record. Coordinate your incident reference and confirmation with the SOC intern or mentor.
+
+The Week 05 Incident Desk shows:
+- Assigned pod's upload inventory, upload IDs, SHA-256, filename, declared MIME, detected MIME, size and active/quarantined status.
+- Matching **local** audit events with exact `event_id`, `request_id`, UTC time and reason code (including `extension_only_validation`).
+- A guarded quarantine form requiring `INC-W05-…`, an approval checkbox and an explicit confirmation.
+- A local Markdown ticket export that records the observed artifact state and containment event ID without leaking credentials.
+
+The upload content is **never downloaded**. Neither raw content nor arbitrary filesystem path browsing is included. The local audit endpoint is not a replacement for SOC's independently verified Wazuh alert.
+
+## Mentor-only browser rehearsal: existing localhost SSH tunnel
+
+With the mentor's **already approved** local SSH forward on the same browser machine:
 
 ```bash
-python3 tools/week05_client.py login
-python3 tools/week05_client.py status
-python3 tools/week05_client.py target
-python3 tools/week05_client.py uploads
+# From the root of this Support toolkit:
+bash neolabs incident dashboard --mentor-preview
+
+# Or, when no graphical browser is available:
+bash neolabs incident dashboard --mentor-preview --no-open
 ```
 
-When a synthetic incident is assigned, pick an exact `upload_id` from **your own pod's** inventory:
+Open `http://127.0.0.1:18600/support` in the **browser on the same machine that owns the SSH tunnel**. Do not open or expose port 18600 publicly.
+
+In a PRIVATE operator terminal on the separate W05 VCC host, the mentor may reveal only that assigned pod's Support preview code:
 
 ```bash
-python3 tools/week05_client.py quarantine --upload-id '<upload-id>' \
-  --incident INC-W05-001 --confirm
-python3 tools/week05_client.py uploads
-python3 tools/week05_client.py logout
+cd ~/VCC-Security-Lab
+python3 scripts/w05-lab.py code --pod pod-01 --track support --reveal
 ```
 
-The quarantine command moves a harmless fixture into restricted persistent storage and logs an event. Do not SSH into the container, modify DB tables, use arbitrary filesystem paths or quarantine another pod's item.
+Do not paste the code into issues, submissions or shared screenshots. In the browser, login only with the authorized Support code for that pod.
 
-The earlier prototype `tools/week05_quarantine.py` accepts mentor internal tokens and is **superseded** for the stand-alone test. Interns must use the broker-scoped client `tools/week05_client.py` instead.
+Suggested rehearsal: the Pentest side first uploads the **approved harmless mislabeled JPG** in the intentionally vulnerable W05 release; SOC verifies the suspicious accepted-upload event `100191` and sends its `upload_id`, event ID and mentor-authorized incident reference to Support. Support reviews the same upload, checks MIME mismatch and hash, obtains approval, quarantines, and observes a new `file.upload_quarantined` event. The SOC side verifies corresponding rule `100193` on the **central** Wazuh dashboard. Support exports the ticket and records who approved the action, UTC timeline, and post-containment verification. Repeat with an accepted normal PNG and a rejected TXT as negative controls; do **not** quarantine a normal upload without a specific approved incident.
 
-The existing Support `neolabs.cmd` and `neolabs.ps1` routines remain unchanged for Week 4. Official W05 root-CLI publishing, ticket authority and sign-off are not completed by the standalone test.
+A quarantined upload cannot be reactivated by this student workflow. Repeated quarantine returns an already-quarantined status, not a new containment event; the UI blocks repeating a confirmed action.
+
+## Student path (only AFTER central broker publishes Week 05)
+
+```bash
+bash neolabs login
+bash neolabs connect           # maintain in a dedicated terminal
+bash neolabs incident dashboard
+```
+
+The Support CLI validates `track=SUPPORT`, `scenario_id=w05-poisoned-upload`, `student_ready=true`, `lab_state=STUDENT_READY`, an assigned pod, and explicit `support_ticket_queue.v1` + `week05_support` resources. Only a published restricted SSH key, assigned tunnel to local 18080 -> remote 18600 and broker-authorized one-use handoff can open official student mode. A Week 4 ticket or password credential **does not authorize Week 5**. Staff must register the separate approved W05 Support SSH key in advance; the CLI refuses to fall back to W04 password SSH.
+
+The official path is **not ready** until the operator publishes the W05 broker manifest, establishes the restricted student SSH account/key, and validates the authorized handoff. The temporary preview is a mentor-only alternative, not a student login.
+
+## Evidence checklist
+
+For each incident record include: scenario and pod; the source upload ID; original accepted event ID and `metadata.reason_code`; declared/detected MIME and SHA-256; approved incident reference; decision justification and escalation; containment UTC and exact quarantine event ID; SOC confirmation of **indexed** 100193; normal-use retest; and limitations.
+
+The export from the Incident Desk is an initial ticket record, not the entirety of the final report. Complete any additional assignment-repository fields and use the official Week 5 submission instructions when published. Never include internal access codes, bearer sessions, SSH private keys or SOC broker exporter credentials.
+
+## Existing Week 4 compatibility
+
+Existing `bash neolabs tickets` and `bash neolabs entitlements` remain unchanged for Week 4. The old `tools/week05_quarantine.py` direct-internal-token prototype is **not** the recommended intern workflow. Never run `docker compose down -v` or `--remove-orphans` when updating the new Week 5 gateway: exporter and upload containers share its Compose project.
