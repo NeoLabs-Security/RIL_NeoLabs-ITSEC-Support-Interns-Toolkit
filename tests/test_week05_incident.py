@@ -70,6 +70,13 @@ class Week05SupportTests(unittest.TestCase):
         self.assertTrue(args.no_open)
         self.assertEqual(args.func.__name__,"dashboard")
 
+    def test_support_keygen_command_is_separate_from_login(self):
+        args=parser().parse_args(["incident","keygen"])
+        self.assertEqual(args.func.__name__,"keygen")
+        self.assertEqual(args.command,"incident")
+        # Key creation never authorizes an arbitrary pod or establishes a broker session.
+        self.assertFalse(hasattr(args,"pod"))
+
     def test_week04_ticket_surface_not_regressed(self):
         args=parser().parse_args(["tickets","--ticket","w04-demo"])
         self.assertEqual(args.ticket,"w04-demo")
