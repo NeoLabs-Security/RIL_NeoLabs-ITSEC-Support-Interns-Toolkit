@@ -78,6 +78,32 @@ class Week05SupportTests(unittest.TestCase):
         # Key creation never authorizes an arbitrary pod or establishes a broker session.
         self.assertFalse(hasattr(args,"pod"))
 
+    def test_student_ready_w05_connect_launches_only_restricted_ssh(self):
+        import argparse
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from tools import neolabs as cli
+        with tempfile.TemporaryDirectory() as temp:
+            home=Path(temp)
+            key=home/"w05-tunnel-ed25519"
+            key.write_text("synthetic-private-placeholder-not-a-real-key")
+            key.chmod(0o600)
+            with (patch.object(cli,"read_session",return_value={}),
+                  patch.object(cli,"refresh",return_value=manifest()),
+                  patch.object(cli,"HOME_STATE",home),
+                  patch.object(cli.shutil,"which",return_value="/usr/bin/ssh"),
+                  patch.object(cli.subprocess,"run") as run):
+                cli.connect(argparse.Namespace())
+                run.assert_called_once()
+                cmd=run.call_args.args[0]
+                self.assertEqual(cmd[0],"/usr/bin/ssh")
+                self.assertIn("PasswordAuthentication=no",cmd)
+                self.assertIn("StrictHostKeyChecking=yes",cmd)
+                self.assertIn("127.0.0.1:18080:127.0.0.1:18600",cmd)
+                self.assertIn("nlw05sup_012345abcdef@192.0.2.20",cmd)
+                self.assertNotIn("PreferredAuthentications=password",cmd)
+
     def test_week04_ticket_surface_not_regressed(self):
         args=parser().parse_args(["tickets","--ticket","w04-demo"])
         self.assertEqual(args.ticket,"w04-demo")
