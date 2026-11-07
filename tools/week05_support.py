@@ -9,6 +9,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import re
+import os
+from pathlib import Path
+import shutil
+import subprocess
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, build_opener, ProxyHandler, HTTPRedirectHandler
 from urllib.parse import urlsplit
@@ -94,6 +98,42 @@ def request_json(base,route,payload=None):
     if not isinstance(result,dict):
         raise ValueError("Invalid Support gateway response object")
     return result
+
+
+
+def keygen(_args):
+    """Create a distinct local W05 Support key; no credentials sent to the server."""
+    from . import neolabs as cli
+    folder = cli.HOME_STATE
+    folder.mkdir(parents=True,exist_ok=True,mode=0o700)
+    os.chmod(folder,0o700)
+    secret=folder/"w05-tunnel-ed25519"
+    public=Path(str(secret)+".pub")
+    if secret.is_symlink() or public.is_symlink():
+        cli.fail("Refusing symlinked SSH key files")
+    if secret.exists() or public.exists():
+        if not secret.is_file() or not public.is_file():
+            cli.fail("W05 keypair incomplete: ask your mentor before modifying it")
+        if secret.stat().st_mode & 0o077:
+            cli.fail("W05 private key is accessible to others; change permissions to 0600")
+        print("Existing W05 Support SSH public key:",public)
+    else:
+        sshgen=shutil.which("ssh-keygen")
+        if not sshgen:
+            cli.fail("Install OpenSSH (ssh-keygen) before generating the W05 identity")
+        try:
+            subprocess.run([sshgen,"-q","-t","ed25519","-N","","-f",str(secret),
+                            "-C","neolabs-w05-support"],check=True)
+        except subprocess.CalledProcessError as exc:
+            cli.fail(f"Unable to generate W05 Support keypair: {exc.returncode}")
+        os.chmod(secret,0o600)
+        os.chmod(public,0o644)
+        print("Generated dedicated Week 05 Support SSH keypair.")
+    print("Give the following PUBLIC KEY ONLY privately to your mentor for approval:")
+    print(public.read_text().strip())
+    print("Never share the private key:",secret)
+    print("This does NOT grant access until your broker assignment and SSH enrollment are approved.")
+    return 0
 
 
 def dashboard(args):
