@@ -460,6 +460,12 @@ def parser() -> argparse.ArgumentParser:
     except ImportError:
         from week05_support import dashboard as w05_support_dashboard
     y.set_defaults(func=w05_support_dashboard)
+    y = nested.add_parser('keygen', help='Generate a separate W05 Support SSH identity and display public key for mentor enrolment')
+    try:
+        from .week05_support import keygen as w05_support_keygen
+    except ImportError:
+        from week05_support import keygen as w05_support_keygen
+    y.set_defaults(func=w05_support_keygen)
     return p
 
 
