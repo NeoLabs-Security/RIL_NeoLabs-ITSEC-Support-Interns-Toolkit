@@ -53,7 +53,8 @@ def published_support_scope(manifest):
             or tunnel.get("remote_host") != "127.0.0.1"
             or tunnel.get("remote_port") != 18600
             or not isinstance(tunnel.get("host"),str) or not tunnel.get("host")
-            or not isinstance(tunnel.get("username"),str) or not tunnel.get("username")
+            or not isinstance(tunnel.get("username"),str)
+            or not re.fullmatch(r"nlw05sup_[0-9a-f]{12}",tunnel.get("username"))
             or not isinstance(support,dict)
             or support.get("contract_version") != "1.0.0"
             or support.get("scenario_id") != SCENARIO
