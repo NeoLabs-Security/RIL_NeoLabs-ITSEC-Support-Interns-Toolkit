@@ -1,23 +1,27 @@
-# Week 05 — Poisoned Upload (IT Security & Support preview)
+# Week 05 — IT Security & Support standalone test guide (draft)
 
-**Draft, mentor-only.** Normal student deployment must replace the manually prompted training token with the current server-authorized NeoLabs Support scope and published tunnel.
+**Authorized target:** mentor's separate Week 05 test server through localhost-only gateway (TCP 18600). Use only the mentor-issued W05 Support Access Code for your assigned pod.
 
-The new `tools/week05_quarantine.py` supports metadata-only inventory and explicitly confirmed quarantine of one server-issued upload ID. It checks the exact Week 05 scenario and pod before any state change; all URLs are localhost-only, and the token is never printed.
-
-Mentor-only inventory (requires Support token):
+The preferred client obtains a short-lived server-verified session and does not ask you to pick a pod locally:
 
 ```bash
-python3 tools/week05_quarantine.py --url http://127.0.0.1:18080 --expected-pod pod-01
+python3 tools/week05_client.py login
+python3 tools/week05_client.py status
+python3 tools/week05_client.py target
+python3 tools/week05_client.py uploads
 ```
 
-One **approved** quarantine, only after a ticket + SOC incident identifier has been published:
+When a synthetic incident is assigned, pick an exact `upload_id` from **your own pod's** inventory:
 
 ```bash
-python3 tools/week05_quarantine.py --url http://127.0.0.1:18080 \
- --expected-pod pod-01 --incident INC-W05-001 \
- --upload-id '<server-issued-id>' --confirm
+python3 tools/week05_client.py quarantine --upload-id '<upload-id>' \
+  --incident INC-W05-001 --confirm
+python3 tools/week05_client.py uploads
+python3 tools/week05_client.py logout
 ```
 
-The operation moves an inert fixture into protected, non-public storage and creates a W05 synthetic event. There is no host shell, generic filesystem access, force delete, or permission change.
+The quarantine command moves a harmless fixture into restricted persistent storage and logs an event. Do not SSH into the container, modify DB tables, use arbitrary filesystem paths or quarantine another pod's item.
 
-Pending before student publication: broker-authorized Support scope, authorized resource publication, incident/ticket ID validation on the server, audit correlation in Wazuh, recovery and fixed-retest tests, root NeoLabs CLI integration.
+The earlier prototype `tools/week05_quarantine.py` accepts mentor internal tokens and is **superseded** for the stand-alone test. Interns must use the broker-scoped client `tools/week05_client.py` instead.
+
+The existing Support `neolabs.cmd` and `neolabs.ps1` routines remain unchanged for Week 4. Official W05 root-CLI publishing, ticket authority and sign-off are not completed by the standalone test.
