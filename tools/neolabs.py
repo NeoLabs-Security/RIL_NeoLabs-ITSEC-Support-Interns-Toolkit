@@ -379,11 +379,21 @@ def targets(_: argparse.Namespace) -> None:
     state = str(manifest.get("lab_state") or "LIVE")
     resources = manifest["resources"]
     print("AUTHORISED SUPPORT RESOURCES")
-    if state not in INTERACTIVE_STATES:
+    w05_ready = manifest.get("scenario_id") == "w05-poisoned-upload"
+    if w05_ready:
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+    if state not in INTERACTIVE_STATES and not w05_ready:
         print(f"  - no interactive endpoints: current state is {state}")
     endpoints = resources.get("endpoints", [])
     assets = resources.get("assets", [])
-    if state in INTERACTIVE_STATES and isinstance(endpoints, list):
+    if (state in INTERACTIVE_STATES or w05_ready) and isinstance(endpoints, list):
         for endpoint in endpoints:
             print(f"  - {display_resource(endpoint)}")
     if isinstance(assets, list):
