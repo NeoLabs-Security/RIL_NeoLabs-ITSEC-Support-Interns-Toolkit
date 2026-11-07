@@ -270,7 +270,7 @@ def connect(_: argparse.Namespace) -> None:
             remote_port = int(tunnel.get("remote_port"))
         except (TypeError, ValueError):
             fail("Invalid W05 Support SSH tunnel ports")
-        if not re.fullmatch(r"[A-Za-z0-9.-]{1,253}", host) or not re.fullmatch(r"[A-Za-z0-9_]{1,32}", username) or not 1 <= port <= 65535 or local_port != 18080 or remote_port != 18600 or remote_host != "127.0.0.1":
+        if not re.fullmatch(r"[A-Za-z0-9.-]{1,253}", host) or not re.fullmatch(r"nlw05sup_[0-9a-f]{12}", username) or not 1 <= port <= 65535 or local_port != 18080 or remote_port != 18600 or remote_host != "127.0.0.1":
             fail("W05 Support tunnel publication does not match the approved restricted endpoint")
         print(f"Starting approved W05 Support tunnel for {manifest['pod_id']} on localhost:18080")
         print("Keep this terminal running; use another terminal for neolabs incident dashboard.")
