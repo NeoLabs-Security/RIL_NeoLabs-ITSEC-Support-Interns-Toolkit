@@ -28,7 +28,7 @@ def json_request(req):
         return error.code, json.load(error)
 
 
-def perform(url: str, pod: str, role_token: str, upload_id: str | None, confirmation: bool) -> dict:
+def perform(url: str, pod: str, role_token: str, upload_id: str | None, confirmation: bool, incident_id: str | None = None) -> dict:
     base = localhost_url(url)
     if pod not in {f"pod-{i:02d}" for i in range(1, 6)}:
         raise ValueError("Invalid authorized pod")
@@ -45,6 +45,9 @@ def perform(url: str, pod: str, role_token: str, upload_id: str | None, confirma
         raise ValueError("Upload ID must be server-issued 32-char lowercase hex")
     if not confirmation:
         raise ValueError("Quarantine is a state-changing action and requires --confirm")
+    if not incident_id or not re.fullmatch(r"INC-W05-[A-Za-z0-9-]{1,32}", incident_id):
+        raise ValueError("Quarantine requires approved Week 05 incident ID")
+    headers["X-Incident-ID"] = incident_id
     code, data = json_request(Request(
         base + "/api/admin/uploads/" + upload_id + "/quarantine",
         data=b"", method="POST", headers=headers))
@@ -67,7 +70,7 @@ if __name__ == "__main__":
         p.error("A mentor-issued incident reference such as INC-W05-001 is required for quarantine")
     token = getpass.getpass("Mentor-issued W05 Support token (not echoed): ")
     try:
-        result = perform(args.url, args.expected_pod, token, args.upload_id, args.confirm)
+        result = perform(args.url, args.expected_pod, token, args.upload_id, args.confirm, args.incident)
     except (RuntimeError, ValueError, TimeoutError, URLError) as error:
         raise SystemExit(f"STOP: {error}") from None
     if args.incident:
