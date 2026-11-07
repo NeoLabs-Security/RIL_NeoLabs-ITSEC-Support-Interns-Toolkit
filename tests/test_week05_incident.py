@@ -19,7 +19,7 @@ def manifest():
             "endpoints":[{"url":"http://127.0.0.1:18080"}],
             "tunnel":{
                 "transport":"ssh-local-forward","host":"192.0.2.20",
-                "username":"nlw05support01","port":22,"remote_host":"127.0.0.1",
+                "username":"nlw05sup_012345abcdef","port":22,"remote_host":"127.0.0.1",
                 "local_port":18080,"remote_port":18600
             },
             "week05_support":{
@@ -46,6 +46,7 @@ class Week05SupportTests(unittest.TestCase):
             lambda m:m.update(student_ready=False),
             lambda m:m["resources"].update(scope_status="UNPUBLISHED"),
             lambda m:m["resources"]["tunnel"].update(remote_port=18601),
+            lambda m:m["resources"]["tunnel"].update(username="nlw04_012345abcdef"),
             lambda m:m["resources"]["tunnel"].update(local_port=18600),
             lambda m:m["resources"]["week05_support"].update(operations=["list"]),
             lambda m:m["resources"]["week05_support"].update(artifact_scope="all_pods"),
