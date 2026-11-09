@@ -147,22 +147,33 @@ def dashboard(args):
         uri=base+"/support"
         print("Mentor-only local preview. Use the mentor-issued Support preview code in the browser.")
     else:
-        session=cli.read_session()
-        manifest=cli.refresh(session)
-        try:
-            published=published_support_scope(manifest)
-        except ValueError as error:
-            cli.fail(str(error))
-        base=published["target_url"]
-        info=request_json(base,"/health")
-        if info.get("scenario_id")!=SCENARIO:
-            cli.fail("W05 SSH tunnel target is not the approved VCC gateway")
-        reply=request_json(base,"/auth/broker-exchange",{"broker_session_token":session["session_token"]})
-        ticket=reply.get("handoff")
-        if not isinstance(ticket,str) or not re.fullmatch(r"[A-Za-z0-9_-]{43}",ticket):
-            cli.fail("Current NeoLabs broker did not authorize the one-time Support handoff")
-        uri=base+"/support#handoff="+ticket
-        print(f"Broker authorized the {published['pod_id']} Support Incident Desk. One-time handoff expires in 45 seconds.")
+        from . import week05_cohort
+        if week05_cohort.profile() is not None:
+            # Cohort mode has a separate W05 gateway login: no central W04
+            # broker JWT or dashboard handoff is available or expected here.
+            info=request_json(STUDENT,"/health")
+            if info.get("scenario_id")!=SCENARIO or info.get("service")!="w05-access-gateway":
+                cli.fail("Week05 Support SSH tunnel not connected to expected Pod01 gateway")
+            uri=STUDENT+"/support"
+            print("✓ Standalone Week05 Support Incident Desk on assigned Pod01.")
+            print("Enter the separately issued Week05 SUPPORT code in the browser.")
+        else:
+            session=cli.read_session()
+            manifest=cli.refresh(session)
+            try:
+                published=published_support_scope(manifest)
+            except ValueError as error:
+                cli.fail(str(error))
+            base=published["target_url"]
+            info=request_json(base,"/health")
+            if info.get("scenario_id")!=SCENARIO:
+                cli.fail("W05 SSH tunnel target is not the approved VCC gateway")
+            reply=request_json(base,"/auth/broker-exchange",{"broker_session_token":session["session_token"]})
+            ticket=reply.get("handoff")
+            if not isinstance(ticket,str) or not re.fullmatch(r"[A-Za-z0-9_-]{43}",ticket):
+                cli.fail("Current NeoLabs broker did not authorize the one-time Support handoff")
+            uri=base+"/support#handoff="+ticket
+            print(f"Broker authorized the {published['pod_id']} Support Incident Desk. One-time handoff expires in 45 seconds.")
     if args.no_open:
         print("Open this private localhost URL on the SAME machine that runs the SSH tunnel:")
         print(uri)
