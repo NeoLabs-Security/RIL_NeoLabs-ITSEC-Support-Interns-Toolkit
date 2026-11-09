@@ -235,6 +235,14 @@ def login(args: argparse.Namespace) -> None:
 
 
 def connect(_: argparse.Namespace) -> None:
+    # Standalone Week05 cohort profile is an explicit local opt-in and never
+    # reinterprets the still-published Week04 authoritative broker session.
+    from . import week05_cohort
+    try:
+        if week05_cohort.connect():
+            return
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        fail(f"Week05 restricted SSH tunnel failed: {error}")
     manifest = refresh(read_session())
     state = str(manifest.get("lab_state") or "LIVE")
     # W05 STUDENT_READY is a valid live-window state ONLY when the current
@@ -489,6 +497,8 @@ def parser() -> argparse.ArgumentParser:
     except ImportError:
         from week05_support import keygen as w05_support_keygen
     y.set_defaults(func=w05_support_keygen)
+    from . import week05_cohort
+    week05_cohort.add_commands(sub)
     return p
 
 
