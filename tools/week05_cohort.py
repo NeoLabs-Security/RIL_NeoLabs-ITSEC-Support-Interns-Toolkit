@@ -25,7 +25,7 @@ EXPIRY = datetime.fromisoformat("2026-11-16T06:00:00+00:00")
 
 
 def stop(reason):
-    raise ValueError(reason)
+    raise SystemExit("ERROR: " + reason)
 
 
 def private_write(path: Path, body: str, mode=0o600):
@@ -143,7 +143,7 @@ def connect():
     args=[ssh, "-i", str(KEY), "-o", "IdentitiesOnly=yes",
           "-o", "BatchMode=yes", "-o", "PasswordAuthentication=no",
           "-o", "StrictHostKeyChecking=yes",
-          "-o", f"UserKnownHostsFile={KNOWN}", "-o", "GlobalKnownHostsFile=/dev/null",
+          "-o", f"UserKnownHostsFile={KNOWN}", "-o", "GlobalKnownHostsFile=none",
           "-o", "ExitOnForwardFailure=yes", "-o", "ServerAliveInterval=30",
           "-o", "ServerAliveCountMax=3", "-N",
           "-L", "127.0.0.1:18080:127.0.0.1:18600", "-p", "22",
