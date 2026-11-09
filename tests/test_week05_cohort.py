@@ -90,6 +90,18 @@ class CohortTests(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     cohort.connect()
 
+    def test_support_dashboard_uses_local_cohort_not_w04_broker(self):
+        from argparse import Namespace
+        from tools import week05_support
+        with patch.object(cohort,"profile",return_value={"pod_id":"pod-01"}), \
+             patch.object(week05_support,"request_json",return_value={
+                 "scenario_id":"w05-poisoned-upload","service":"w05-access-gateway"
+             }) as local, \
+             patch.object(neolabs,"read_session") as read:
+            week05_support.dashboard(Namespace(mentor_preview=False,no_open=True))
+            read.assert_not_called()
+            self.assertEqual(local.call_args.args,("http://127.0.0.1:18080","/health"))
+
 
 if __name__ == "__main__":
     unittest.main()
