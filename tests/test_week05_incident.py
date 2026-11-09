@@ -84,6 +84,7 @@ class Week05SupportTests(unittest.TestCase):
         from pathlib import Path
         from unittest.mock import patch
         from tools import neolabs as cli
+        from tools import week05_auto_enroll
         with tempfile.TemporaryDirectory() as temp:
             home=Path(temp)
             key=home/"w05-tunnel-ed25519"
@@ -91,6 +92,7 @@ class Week05SupportTests(unittest.TestCase):
             key.chmod(0o600)
             with (patch.object(cli,"read_session",return_value={}),
                   patch.object(cli,"refresh",return_value=manifest()),
+                  patch.object(week05_auto_enroll,"auto_enroll",return_value=(manifest(),key,home/"w05-known-hosts")),
                   patch.object(cli,"HOME_STATE",home),
                   patch.object(cli.shutil,"which",return_value="/usr/bin/ssh"),
                   patch.object(cli.subprocess,"run") as run):
@@ -100,6 +102,7 @@ class Week05SupportTests(unittest.TestCase):
                 self.assertEqual(cmd[0],"/usr/bin/ssh")
                 self.assertIn("PasswordAuthentication=no",cmd)
                 self.assertIn("StrictHostKeyChecking=yes",cmd)
+                self.assertIn("UserKnownHostsFile="+str(home/"w05-known-hosts"),cmd)
                 self.assertIn("127.0.0.1:18080:127.0.0.1:18600",cmd)
                 self.assertIn("nlw05sup_012345abcdef@192.0.2.20",cmd)
                 self.assertNotIn("PreferredAuthentications=password",cmd)
