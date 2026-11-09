@@ -235,14 +235,89 @@ def login(args: argparse.Namespace) -> None:
 
 
 def connect(_: argparse.Namespace) -> None:
+    # Standalone Week05 cohort profile is an explicit local opt-in and never
+    # reinterprets the still-published Week04 authoritative broker session.
+    from . import week05_cohort
+    try:
+        if week05_cohort.connect():
+            return
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        fail(f"Week05 restricted SSH tunnel failed: {error}")
     manifest = refresh(read_session())
+    pinned_known_hosts = None
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        try:
+            from . import week05_auto_enroll
+        except ImportError:
+            import week05_auto_enroll
+        manifest, _, pinned_known_hosts = week05_auto_enroll.auto_enroll(
+            sys.modules[__name__], manifest, "w05-tunnel-ed25519")
     state = str(manifest.get("lab_state") or "LIVE")
-    if state not in INTERACTIVE_STATES:
+    # W05 STUDENT_READY is a valid live-window state ONLY when the current
+    # authoritative broker also publishes the exact W05 Support scope.
+    # This check is before the legacy state gate to avoid silently skipping
+    # a valid Week 05 localhost SSH connection.
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+    elif state not in INTERACTIVE_STATES:
         print(f"NeoLabs state: {state}. No interactive Support endpoint is required/available in this window.")
         print("Use `neolabs replay` for archived telemetry and `neolabs evidence` for approved ticket/cloud/endpoint evidence.")
         return
     resources = manifest["resources"]
     tunnel = resources.get("tunnel")
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        # Unlike Week 04, Week 05 uses an automatically registered Ed25519
+        # key. The authoritative broker publishes and pins exact tunnel scope.
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+        ssh = shutil.which("ssh")
+        identity = HOME_STATE / "w05-tunnel-ed25519"
+        if not ssh or not identity.is_file() or identity.is_symlink() or identity.stat().st_mode & 0o077:
+            fail("Automatic Week 05 SSH enrollment did not prepare a valid private key")
+        if pinned_known_hosts is None:
+            fail("NeoLabs broker did not provide a trusted Week 05 host-key pin")
+        if not isinstance(tunnel, dict):
+            fail("W05 Support tunnel is not published")
+        host = str(tunnel.get("host") or "")
+        username = str(tunnel.get("username") or "")
+        remote_host = str(tunnel.get("remote_host") or "")
+        try:
+            port = int(tunnel.get("port") or 22)
+            local_port = int(tunnel.get("local_port"))
+            remote_port = int(tunnel.get("remote_port"))
+        except (TypeError, ValueError):
+            fail("Invalid W05 Support SSH tunnel ports")
+        if not re.fullmatch(r"[A-Za-z0-9.-]{1,253}", host) or not re.fullmatch(r"nlw05sup_[0-9a-f]{12}", username) or not 1 <= port <= 65535 or local_port != 18080 or remote_port != 18600 or remote_host != "127.0.0.1":
+            fail("W05 Support tunnel publication does not match the approved restricted endpoint")
+        print(f"Starting approved W05 Support tunnel for {manifest['pod_id']} on localhost:18080")
+        print("Keep this terminal running; use another terminal for neolabs incident dashboard.")
+        command = [ssh, "-i", str(identity), "-o", "IdentitiesOnly=yes",
+                   "-o", "BatchMode=yes", "-o", "PasswordAuthentication=no",
+                   "-o", "ExitOnForwardFailure=yes", "-o", "StrictHostKeyChecking=yes",
+                   "-o", f"UserKnownHostsFile={pinned_known_hosts}",
+                   "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=3",
+                   "-N", "-L", f"127.0.0.1:{local_port}:{remote_host}:{remote_port}",
+                   "-p", str(port), f"{username}@{host}"]
+        try:
+            subprocess.run(command, check=True)
+        except KeyboardInterrupt:
+            print("W05 Support SSH tunnel closed")
+        except subprocess.CalledProcessError as exc:
+            fail(f"W05 Support SSH tunnel exited ({exc.returncode}); verify network ingress or broker enrollment status")
+        return
     if isinstance(tunnel, dict) and tunnel.get("transport") == "ssh-local-forward":
         ssh = shutil.which("ssh")
         if not ssh:
@@ -322,11 +397,21 @@ def targets(_: argparse.Namespace) -> None:
     state = str(manifest.get("lab_state") or "LIVE")
     resources = manifest["resources"]
     print("AUTHORISED SUPPORT RESOURCES")
-    if state not in INTERACTIVE_STATES:
+    w05_ready = manifest.get("scenario_id") == "w05-poisoned-upload"
+    if w05_ready:
+        try:
+            from .week05_support import published_support_scope
+        except ImportError:
+            from week05_support import published_support_scope
+        try:
+            published_support_scope(manifest)
+        except ValueError as exc:
+            fail(str(exc))
+    if state not in INTERACTIVE_STATES and not w05_ready:
         print(f"  - no interactive endpoints: current state is {state}")
     endpoints = resources.get("endpoints", [])
     assets = resources.get("assets", [])
-    if state in INTERACTIVE_STATES and isinstance(endpoints, list):
+    if (state in INTERACTIVE_STATES or w05_ready) and isinstance(endpoints, list):
         for endpoint in endpoints:
             print(f"  - {display_resource(endpoint)}")
     if isinstance(assets, list):
@@ -406,6 +491,24 @@ def parser() -> argparse.ArgumentParser:
     x = sub.add_parser('entitlements', help='Read-only course evidence for a currently assigned ticket')
     x.add_argument('--ticket', required=True)
     x.set_defaults(func=support_tickets.course_entitlements)
+    x = sub.add_parser('incident', help='Week 05 authorized Support incident response tools')
+    nested = x.add_subparsers(dest='incident_command', required=True)
+    y = nested.add_parser('dashboard', help='Open assigned-pod web incident desk through localhost tunnel')
+    y.add_argument('--mentor-preview', action='store_true', help='Use separate Week 05 mentor-only preview on port 18600')
+    y.add_argument('--no-open', action='store_true', help='Print private localhost URL rather than starting a browser')
+    try:
+        from .week05_support import dashboard as w05_support_dashboard
+    except ImportError:
+        from week05_support import dashboard as w05_support_dashboard
+    y.set_defaults(func=w05_support_dashboard)
+    y = nested.add_parser('keygen', help='Optional: show the Week05 Support public key; connect performs enrollment automatically')
+    try:
+        from .week05_support import keygen as w05_support_keygen
+    except ImportError:
+        from week05_support import keygen as w05_support_keygen
+    y.set_defaults(func=w05_support_keygen)
+    from . import week05_cohort
+    week05_cohort.add_commands(sub)
     return p
 
 
