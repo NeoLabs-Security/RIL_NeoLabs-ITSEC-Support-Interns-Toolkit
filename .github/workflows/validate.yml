@@ -20,8 +20,10 @@ jobs:
 
       - name: Validate NeoLabs Python clients and installed command
         run: |
-          python -m py_compile tools/neolabs.py tools/support_tickets.py tools/week05_support.py
+          python -m py_compile tools/neolabs.py tools/support_tickets.py tools/week05_support.py tools/week05_cohort.py
           python -m unittest discover -s tests -p "test_week05_incident.py" -v
+          python -m unittest discover -s tests -p "test_week05_cohort.py" -v
+          bash neolabs week05 --help
           python -m unittest tests/test_support_tickets.py -v
           python -m unittest tests/test_week04_course_evidence.py -v
           bash -n neolabs
