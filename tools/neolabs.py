@@ -244,6 +244,14 @@ def connect(_: argparse.Namespace) -> None:
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         fail(f"Week05 restricted SSH tunnel failed: {error}")
     manifest = refresh(read_session())
+    pinned_known_hosts = None
+    if manifest.get("scenario_id") == "w05-poisoned-upload":
+        try:
+            from . import week05_auto_enroll
+        except ImportError:
+            import week05_auto_enroll
+        manifest, _, pinned_known_hosts = week05_auto_enroll.auto_enroll(
+            sys.modules[__name__], manifest, "w05-tunnel-ed25519")
     state = str(manifest.get("lab_state") or "LIVE")
     # W05 STUDENT_READY is a valid live-window state ONLY when the current
     # authoritative broker also publishes the exact W05 Support scope.
@@ -265,9 +273,8 @@ def connect(_: argparse.Namespace) -> None:
     resources = manifest["resources"]
     tunnel = resources.get("tunnel")
     if manifest.get("scenario_id") == "w05-poisoned-upload":
-        # Unlike Week 04, Week 05 must NEVER fall back to password-SSH.
-        # The mentor must register this exact key on the separate W05 host;
-        # the authoritative broker must then publish the scoped tunnel.
+        # Unlike Week 04, Week 05 uses an automatically registered Ed25519
+        # key. The authoritative broker publishes and pins exact tunnel scope.
         try:
             from .week05_support import published_support_scope
         except ImportError:
@@ -279,7 +286,9 @@ def connect(_: argparse.Namespace) -> None:
         ssh = shutil.which("ssh")
         identity = HOME_STATE / "w05-tunnel-ed25519"
         if not ssh or not identity.is_file() or identity.is_symlink() or identity.stat().st_mode & 0o077:
-            fail("W05 Support requires an authorized, private SSH tunnel key at ~/.neolabs/support/w05-tunnel-ed25519 (mode 0600); contact the mentor for enrolment")
+            fail("Automatic Week 05 SSH enrollment did not prepare a valid private key")
+        if pinned_known_hosts is None:
+            fail("NeoLabs broker did not provide a trusted Week 05 host-key pin")
         if not isinstance(tunnel, dict):
             fail("W05 Support tunnel is not published")
         host = str(tunnel.get("host") or "")
@@ -298,6 +307,7 @@ def connect(_: argparse.Namespace) -> None:
         command = [ssh, "-i", str(identity), "-o", "IdentitiesOnly=yes",
                    "-o", "BatchMode=yes", "-o", "PasswordAuthentication=no",
                    "-o", "ExitOnForwardFailure=yes", "-o", "StrictHostKeyChecking=yes",
+                   "-o", f"UserKnownHostsFile={pinned_known_hosts}",
                    "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=3",
                    "-N", "-L", f"127.0.0.1:{local_port}:{remote_host}:{remote_port}",
                    "-p", str(port), f"{username}@{host}"]
@@ -306,7 +316,7 @@ def connect(_: argparse.Namespace) -> None:
         except KeyboardInterrupt:
             print("W05 Support SSH tunnel closed")
         except subprocess.CalledProcessError as exc:
-            fail(f"W05 Support SSH tunnel exited ({exc.returncode}); verify server key, account and approved private identity")
+            fail(f"W05 Support SSH tunnel exited ({exc.returncode}); verify network ingress or broker enrollment status")
         return
     if isinstance(tunnel, dict) and tunnel.get("transport") == "ssh-local-forward":
         ssh = shutil.which("ssh")
@@ -491,7 +501,7 @@ def parser() -> argparse.ArgumentParser:
     except ImportError:
         from week05_support import dashboard as w05_support_dashboard
     y.set_defaults(func=w05_support_dashboard)
-    y = nested.add_parser('keygen', help='Generate a separate W05 Support SSH identity and display public key for mentor enrolment')
+    y = nested.add_parser('keygen', help='Optional: show the Week05 Support public key; connect performs enrollment automatically')
     try:
         from .week05_support import keygen as w05_support_keygen
     except ImportError:
